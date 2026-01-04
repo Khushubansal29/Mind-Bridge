@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindBridge | Journal</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="journal.css">
+</head>
+
+<body class="dashboard-body">
+
+<!-- LEFT DECOR -->
+        <div class="side-decor left-decor">
+            <img src="illustration.png" alt="Supportive illustration">
+        </div>
+
+         <!-- RIGHT DECOR -->
+    <div class="side-decor right-decor">
+        <img src="illustration2.png" alt="Supportive illustration">
+    </div>
+
+    <!-- NAVBAR (same as dashboard) -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <h2 class="logo">MindBridge</h2>
+        </div>
+
+        <ul class="nav-links">
+            <li onclick="location.href='dashboard.html'">Dashboard</li>
+            <li onclick="location.href='circles.html'">Circles</li>
+            <li class="active">Journal</li>
+            <li onclick="location.href='mood.html'">Mood Tracker</li>
+            <li onclick="location.href='profile.html'">Profile</li>
+        </ul>
+
+        <div class="nav-right">
+            <button id="logout-btn" class="btn-primary small">Logout</button>
+        </div>
+    </nav>
+
+    <main class="dashboard-layout">
+        <div class="dashboard-main">
+
+            <h1 class="welcome-heading">Your Journal</h1>
+            <p>Your journal is a place to be introspective ✍️</p>
+
+    <section class="journal-page">
+        <!-- BUTTONS -->
+        <div class="journal-toggle">
+            <button id="btn-quick-journal" class="btn-primary small active">
+                    Quick Journal
+            </button>
+            <button id="btn-view-journal" class="btn-primary small">
+                    View Saved Journals
+            </button>
+        </div>
+
+    <!-- QUICK JOURNAL -->
+        <div id="quick-journal-view">
+            <textarea id="journal-input" placeholder="Write your heart out!" rows="5"></textarea>
+            <button id="save-journal-btn" class="btn-primary">Save Entry</button>
+        </div>
+
+    <!-- SAVED JOURNALS -->
+        <div id="saved-journal-view" class="hidden">
+            <div id="journal-entries" class="journal-list"></div>
+        </div>
+
+        </div>
+
+    </section>
+    
+    </main>
+
+    <script src="journal.js"></script>
+</body>
+</html>

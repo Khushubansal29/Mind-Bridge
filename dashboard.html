@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MindBridge | Dashboard</title>
+
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="dashboard.css" />
+</head>
+
+<body class="dashboard-body">
+
+    <!-- LEFT DECOR -->
+    <div class="side-decor left-decor">
+        <img src="illustration.png" alt="Supportive illustration">
+    </div>
+
+    <!-- RIGHT DECOR -->
+    <div class="side-decor right-decor">
+        <img src="illustration2.png" alt="Supportive illustration">
+    </div>
+
+    <header>
+        <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <h2 class="logo">MindBridge</h2>
+        </div>
+
+        <ul class="nav-links">
+            <li id="dashboard-section" class="active">Dashboard</li>
+            <li id="circles-section" onclick="location.href='circles.html'">Circles</li>
+            <li id="journal-section" onclick="location.href='journal.html'">Journal</li>
+            <li id="mood-section" onclick="location.href='mood.html'">Mood Tracker</li>
+            <li id="profile-section" onclick="location.href='profile.html'">Profile</li>
+        </ul>
+
+        <div class="nav-right">
+            <button id="logout-btn" class="btn-primary small">Logout</button>
+        </div>
+    </nav>
+    </header>
+    
+    <!-- MAIN LAYOUT -->
+    <main class="dashboard-layout">
+
+        <!-- CENTER CONTENT -->
+        <div class="dashboard-main">
+
+            <!-- DASHBOARD SECTION -->
+            <section id="dashboard-section" class="page-section">
+                <h1 id="welcome-text" class="welcome-heading">Welcome</h1>
+
+                <div class="dashboard-grid">
+
+                    <!-- MOOD -->
+                    <section class="card">
+                        <h2>Today's Mood</h2>
+                        <p>How's your mood today?</p>
+                        <div class="mood-buttons">
+                            <button class="mood-btn">Good 😊</button>
+                            <button class="mood-btn">Neutral 😐</button>
+                            <button class="mood-btn">Bad ☹️</button>
+                        </div>
+                        <p id="mood-status" class="muted-text"></p>
+
+                        <p id="mood-saved-badge" class="mood-badge hidden">
+                            ✔ Today's mood saved
+                        </p>
+
+                    </section>
+
+                    <!-- JOURNAL INPUT -->
+                    <section class="card">
+                        <h2>Quick Journal</h2>
+                        <textarea id="dashboard-journal-input" placeholder="Write your heart out 🧡" rows="4"></textarea>
+                        <button id="dashboard-save-journal-btn" class="btn-primary small">Save Entry</button>
+                    </section>
+
+                    <!-- INTERESTS -->
+                    <section class="card">
+                        <h2>Your Interests</h2>
+                        <ul id="interest-tags" class="interest-list"></ul>
+                    </section>
+
+                    <!-- CIRCLES -->
+                    <section class="card">
+                        <h2>Recommended Circles</h2>
+                        <p>Based on your intersts, here are the recommended circles:</p>
+                    </section>
+
+                </div>
+            </section>
+
+        </div>
+
+    </main>
+
+    <footer></footer>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
+
+

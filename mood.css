@@ -1,0 +1,85 @@
+.dashboard-layout {
+    display: flex;
+    justify-content: center;
+}
+
+body {
+    background: #fbf6ee;
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+}
+
+/* MAIN LAYOUT */
+.mood-wrapper {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 60px 20px 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+    position: relative;
+    z-index: 1;
+}
+
+/* TITLE */
+.page-title {
+    font-size: 42px;
+    color: #e15b85;
+    margin-bottom: 20px;
+}
+
+/* CARD BASE */
+.card {
+    background: #f4d8cf;
+    border-radius: 28px;
+    /* padding: 40px; */
+    box-shadow: 0 25px 40px rgba(0,0,0,0.08);
+}
+
+/* TOP CARD */
+.mood-main {
+    width: 100%;
+    max-width: 900px;
+    text-align: center;
+}
+
+/* BUTTONS */
+.mood-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 25px 0;
+}
+
+.mood-btn {
+    background: #f59c7b;
+    border: none;
+    padding: 14px 26px;
+    border-radius: 999px;
+    font-size: 16px;
+    color: white;
+    cursor: pointer;
+}
+
+/* TEXT */
+.muted-text {
+    color: #b58c6f;
+}
+
+/* BOTTOM CARDS */
+.two-card-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    width: 100%;
+    max-width: 900px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .two-card-row {
+        grid-template-columns: 1fr;
+    }
+}

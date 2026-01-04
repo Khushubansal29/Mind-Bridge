@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MindBridge | Mood Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- shared styles -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="mood.css">
+</head>
+
+<body class="dashboard-body">
+
+    <!-- LEFT ILLUSTRATION -->
+    <div class="side-decor left-decor">
+        <img src="illustration.png" alt="">
+    </div>
+
+    <!-- RIGHT ILLUSTRATION -->
+    <div class="side-decor right-decor">
+        <img src="illustration2.png" alt="">
+    </div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <h2 class="logo">MindBridge</h2>
+        </div>
+
+        <ul class="nav-links">
+            <li onclick="location.href='dashboard.html'">Dashboard</li>
+            <li onclick="location.href='circles.html'">Circles</li>
+            <li onclick="location.href='journal.html'">Journal</li>
+            <li class="active">Mood Tracker</li>
+            <li onclick="location.href='profile.html'">Profile</li>
+        </ul>
+
+        <div class="nav-right">
+            <button class="btn-primary small" id="logout-btn">Logout</button>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="dashboard-layout">
+
+        <section class="mood-wrapper mood-page">
+
+               <h1 class="page-title">Mood Tracker</h1>
+
+            <!-- TOP CARD -->
+            <section class="card mood-main">
+                <h2>How are you feeling today?</h2>
+
+                <div class="mood-buttons">
+                    <button class="mood-btn">😊 Good</button>
+                    <button class="mood-btn">😐 Neutral</button>
+                    <button class="mood-btn">☹️ Bad</button>
+                </div>
+
+                <p id="mood-status" class="muted-text"></p>
+                <p id="mood-saved-badge" class="mood-badge hidden">
+                    ✔ Today’s mood saved
+                </p>
+
+            </section>
+
+            <!-- BOTTOM TWO CARDS -->
+            <div class="two-card-row">
+                <section class="card small-card">
+                    <h2>Your Mood History</h2>
+                    <div id="mood-history">
+                        <p class="muted-text">No history yet</p>
+                    </div>
+                    
+                </section>
+
+                <section class="card small-card">
+                    <h2>Mood Overview</h2>
+                    <div id="mood-overview">
+                        <p class="muted-text">Insights coming soon</p>
+                    </div>
+                </section>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="mood.js"></script>
+</body>
+</html>
+
