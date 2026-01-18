@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MindBridge | Profile</title>
+
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="dashboard.css" />
+    <link rel="stylesheet" href="profile.css" />
+</head>
+
+<body class="dashboard-body">
+
+    <!-- LEFT DECOR -->
+    <div class="side-decor left-decor">
+        <img src="illustration.png" alt="">
+    </div>
+
+    <!-- RIGHT DECOR -->
+    <div class="side-decor right-decor">
+        <img src="illustration2.png" alt="">
+    </div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <h2 class="logo">MindBridge</h2>
+        </div>
+
+        <ul class="nav-links">
+            <li onclick="location.href='dashboard.html'">Dashboard</li>
+            <li id="circles-section" onclick="location.href='circles.html'">Circles</li>
+            <li onclick="location.href='journal.html'">Journal</li>
+            <li onclick="location.href='mood.html'">Mood Tracker</li>
+            <li class="active">Profile</li>
+        </ul>
+
+        <div class="nav-right" style="display: flex; align-items: center; gap: 12px;">
+    <div class="nav-icon">🔔</div>
+    
+        <div class="nav-icon avatar-icon" id="nav-avatar" style="width: 35px; height: 35px; border-radius: 50%; background: #e15b85; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden;">
+        </div>
+
+        <button id="direct-logout-btn" class="nav-logout-btn">Logout</button>
+    </div>
+    </div>
+
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="dashboard-layout">
+
+        <section class="profile-wrapper">
+
+            <h1 class="profile-heading">Your Profile</h1>
+
+            <div class="profile-card card">
+
+                <!-- PROFILE PIC -->
+    <div class="avatar-wrapper">
+    <img id="profile-pic" alt="Profile Picture" />
+    <button id="change-pic-btn" type="button"  class="btn-primary small">Change Picture</button>
+
+    <!-- hidden file input -->
+    <input
+        type="file"
+        id="profile-pic-input"
+        accept="image/*"
+        hidden
+    />
+</div>
+
+    <!-- EDITABLE FIELDS -->
+    <div class="profile-row">
+        <label>Display Name</label>
+        <input type="text" id="display-name" />
+    </div>
+
+    <div class="profile-row">
+        <label>Bio</label>
+        <textarea id="bio" rows="3"></textarea>
+    </div>
+
+    <div class="profile-section">
+    <h3>Interests</h3>
+
+    <div class="interest-pills">
+        <label class="interest-pill">
+            <input type="checkbox" name="profile-interests" value="Healing">
+            <span>Healing</span>
+        </label>
+
+        <label class="interest-pill">
+            <input type="checkbox" name="profile-interests" value="Productivity">
+            <span>Productivity</span>
+        </label>
+
+        <label class="interest-pill">
+            <input type="checkbox" name="profile-interests" value="Mindfulness">
+            <span>Mindfulness</span>
+        </label>
+    </div>
+</div>
+
+</div>
+
+
+    <button type="button" id="save-profile-btn" class="btn-primary">
+        Save Changes
+    </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="profile.js"></script>
+</body>
+</html>

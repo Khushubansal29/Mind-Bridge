@@ -1,12 +1,7 @@
-// common functions
-function getCurrentUser() {
-    return JSON.parse(localStorage.getItem("currentUser"));
-}
 
-function logoutUser() {
-    localStorage.removeItem("currentUser");
-    localStorage.setItem("showLogin", "true");
-    window.location.href = "index.html";
+function getCurrentUser() {
+    const user = localStorage.getItem("currentUser");
+    return user ? JSON.parse(user) : null;
 }
 
 function todayDate() {
@@ -21,43 +16,43 @@ function getSavedMoods(username) {
     return JSON.parse(localStorage.getItem(getMoodKey(username))) || [];
 }
 
-function saveMoods(username, moods) {
-    localStorage.setItem(getMoodKey(username), JSON.stringify(moods));
-}
-
-function canSaveMoodToday(username) {
-    const moods = getSavedMoods(username);
-    const today = todayDate();
-    return !moods.some(m => m.date === today);
-}
-
-function saveTodayMood(username, mood, message) {
-    if (!canSaveMoodToday(username)) {
-        alert("You have already recorded your mood today 🌱");
-        return false;
-    }
-
-    const moods = getSavedMoods(username);
-
-    moods.unshift({
-        date: todayDate(),
-        mood,
-        message
-    });
-
-    saveMoods(username, moods);
-    return true;
-}
-
-// main
-
+// main logic
 document.addEventListener("DOMContentLoaded", () => {
-
     const user = getCurrentUser();
     if (!user) {
         window.location.href = "index.html";
         return;
     }
+
+    // nabar, logout
+    const navAvatar = document.getElementById("nav-avatar");
+    if (navAvatar) {
+        const pic = localStorage.getItem(`profilePic_${user.username}`);
+        if (pic) {
+            navAvatar.innerHTML = `<img src="${pic}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+        } else {
+        
+            navAvatar.textContent = (user.displayName || user.username)[0].toUpperCase();
+            navAvatar.style.display = "flex";
+            navAvatar.style.alignItems = "center";
+            navAvatar.style.justifyContent = "center";
+            navAvatar.style.fontWeight = "bold";
+            navAvatar.style.color = "white";
+        }
+    }
+
+    const logoutBtnIds = ["direct-logout-btn", "logout-btn"];
+    logoutBtnIds.forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) {
+            btn.onclick = (e) => {
+                e.preventDefault();
+                localStorage.removeItem("currentUser");
+                localStorage.setItem("showLogin", "true");
+                window.location.href = "index.html";
+            };
+        }
+    });
 
     const moodButtons = document.querySelectorAll(".mood-btn");
     const moodStatus = document.getElementById("mood-status");
@@ -65,61 +60,55 @@ document.addEventListener("DOMContentLoaded", () => {
     const overviewBox = document.getElementById("mood-overview");
     const moodBadge = document.getElementById("mood-saved-badge");
 
+    refreshUI();
 
-    const moods = getSavedMoods(user.username);
-    const today = todayDate();
+    function refreshUI() {
+        const moods = getSavedMoods(user.username);
+        const today = todayDate();
+        const todayEntry = moods.find(m => m.date === today);
 
-//  mood check per day
-
-    const todayMood = moods.find(m => m.date === today);
-    if (todayMood) {
-        moodStatus.textContent = todayMood.message;
-    }
-    if (todayMood && moodBadge) {
-    moodBadge.classList.remove("hidden");
-}
-if (moodBadge) {
-    moodBadge.classList.remove("hidden");
-}
-
-// save mood
-
-moodButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-
-        let mood = "";
-        let message = "";
-
-        if (btn.textContent.includes("Good")) {
-            mood = "Good";
-            message = "Peace begins with a smile 😊";
-        } else if (btn.textContent.includes("Neutral")) {
-            mood = "Neutral";
-            message = "Fall seven times, stand up eight 💪🏻";
+        if (todayEntry) {
+            if (moodStatus) moodStatus.textContent = todayEntry.message;
+            if (moodBadge) moodBadge.classList.remove("hidden");
         } else {
-            mood = "Bad";
-            message = "Every moment is a fresh beginning 🌸";
+            if (moodStatus) moodStatus.textContent = "You haven't tracked your mood yet today.";
+            if (moodBadge) moodBadge.classList.add("hidden");
         }
 
-        const saved = saveTodayMood(user.username, mood, message);
+        if (historyBox) renderHistory(moods);
+        if (overviewBox) renderOverview(moods);
+    }
 
-        if (!saved) return;
+    moodButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            let mood = btn.textContent.trim().split(" ")[1]; 
+            let message = "";
 
-        moodStatus.textContent = message;
+            if (mood === "Good") message = "Peace begins with a smile 😊";
+            else if (mood === "Neutral") message = "Fall seven times, stand up eight 💪🏻";
+            else message = "Every moment is a fresh beginning 🌸";
 
-        const updatedMoods = getSavedMoods(user.username);
-        renderHistory(updatedMoods);
-        renderOverview(updatedMoods);
+            saveMood(user.username, mood, message);
+            refreshUI();
+        });
     });
-});
 
-// render history
+    function saveMood(username, mood, message) {
+        let moods = getSavedMoods(username);
+        const today = todayDate();
+        const existingIdx = moods.findIndex(m => m.date === today);
+        const newEntry = { date: today, mood, message };
+
+        if (existingIdx > -1) {
+            moods[existingIdx] = newEntry;
+        } else {
+            moods.unshift(newEntry);
+        }
+        localStorage.setItem(getMoodKey(username), JSON.stringify(moods));
+    }
 
     function renderHistory(moods) {
-        if (!historyBox) return;
-
         historyBox.innerHTML = "";
-
         if (moods.length === 0) {
             historyBox.innerHTML = "<p class='muted-text'>No mood history yet</p>";
             return;
@@ -127,40 +116,36 @@ moodButtons.forEach(btn => {
 
         moods.forEach(m => {
             const div = document.createElement("div");
-            div.className = "mood-entry";
+            div.className = "mood-history-item";
+            const emoji = m.mood === "Good" ? "😊" : m.mood === "Neutral" ? "😐" : "☹️";
             div.innerHTML = `
-                <strong>${m.date}</strong>
-                <p>${m.mood}</p>
+                <span class="history-date">${m.date === todayDate() ? "Today" : m.date}</span>
+                <span class="history-mood">${emoji} ${m.mood}</span>
             `;
             historyBox.appendChild(div);
         });
     }
 
-// render overview
-
     function renderOverview(moods) {
-        if (!overviewBox) return;
-
-        let good = 0, neutral = 0, bad = 0;
-
+        let stats = { Good: 0, Neutral: 0, Bad: 0 };
         moods.forEach(m => {
-            if (m.mood === "Good") good++;
-            if (m.mood === "Neutral") neutral++;
-            if (m.mood === "Bad") bad++;
+            if (stats[m.mood] !== undefined) stats[m.mood]++;
         });
 
         overviewBox.innerHTML = `
-            <p>😊 Good: ${good}</p>
-            <p>😐 Neutral: ${neutral}</p>
-            <p>☹️ Bad: ${bad}</p>
+            <div class="stat-row"><span>😊 Good</span> <strong>${stats.Good}</strong></div>
+            <div class="stat-row"><span>😐 Neutral</span> <strong>${stats.Neutral}</strong></div>
+            <div class="stat-row"><span>☹️ Bad</span> <strong>${stats.Bad}</strong></div>
         `;
     }
 
-// init
-
-    renderHistory(moods);
-    renderOverview(moods);
-
+    const avatarBtn = document.getElementById("avatar-btn");
+    const profileDropdown = document.getElementById("profile-dropdown");
+    if (avatarBtn && profileDropdown) {
+        avatarBtn.onclick = (e) => {
+            e.stopPropagation();
+            profileDropdown.classList.toggle("hidden");
+        };
+        document.addEventListener("click", () => profileDropdown.classList.add("hidden"));
+    }
 });
-
-document.getElementById("logout-btn").onclick = logoutUser;

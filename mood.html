@@ -37,9 +37,16 @@
             <li onclick="location.href='profile.html'">Profile</li>
         </ul>
 
-        <div class="nav-right">
-            <button class="btn-primary small" id="logout-btn">Logout</button>
+        <div class="nav-right" style="display: flex; align-items: center; gap: 12px;">
+    <div class="nav-icon">🔔</div>
+    
+        <div class="nav-icon avatar-icon" id="nav-avatar" style="width: 35px; height: 35px; border-radius: 50%; background: #e15b85; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden;">
         </div>
+
+        <button id="direct-logout-btn" class="nav-logout-btn">Logout</button>
+    </div>
+    </div>
+
     </nav>
 
     <!-- MAIN CONTENT -->
@@ -47,7 +54,7 @@
 
         <section class="mood-wrapper mood-page">
 
-               <h1 class="page-title">Mood Tracker</h1>
+               <h1 class="moodtracker-heading">Mood Tracker</h1>
 
             <!-- TOP CARD -->
             <section class="card mood-main">

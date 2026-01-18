@@ -1,0 +1,187 @@
+
+.profile-wrapper {
+    grid-column: 2;
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0px 20px 120px;
+}
+
+.page-title {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #d65780;
+}
+
+.profile-card {
+    padding: 40px;
+}
+
+.profile-row {
+    margin-bottom: 28px;
+}
+
+.profile-label {
+    display: block;
+    font-weight: 600;
+    color: #d65780;
+    margin-bottom: 6px;
+}
+
+#profile-interests {
+    padding-left: 20px;
+}
+
+#profile-interests li {
+    margin-bottom: 6px;
+}
+
+.profile-pic-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.profile-pic {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #d65780;
+}
+
+.avatar {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: #d65780;
+    color: white;
+    font-size: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+
+.btn-secondary {
+    margin-top: 12px;
+    background: transparent;
+    border: 2px solid #d65780;
+    color: #d65780;
+    padding: 6px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+.profile-row input,
+.profile-row textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px dotted var(--accent-tan);
+}
+
+.interest-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.8rem;
+    margin-top: 0.8rem;
+}
+
+.interest-checkboxes label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+.interest-checkboxes input {
+    accent-color: #f28aa5;
+}
+
+.interest-pills {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin: 1rem 0 1.5rem;
+}
+
+.interest-pill {
+    position: relative;
+    cursor: pointer;
+}
+
+.interest-pill input {
+    display: none;
+}
+
+.interest-pill span {
+    display: inline-block;
+    padding: 0.6rem 1.4rem;
+    border-radius: 999px;
+    background: #f5d6cd;
+    color: #ff8b6a;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+}
+
+.interest-pill input:checked + span {
+    background: #f28aa5;
+    color: white;
+    border-color: #f28aa5;
+}
+
+.interest-pill span:hover {
+    transform: translateY(-1px);
+}
+
+.avatar-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+#profile-pic {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #f28aa5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#profile-pic.default-avatar {
+    background: #f28aa5;
+    color: white;
+    font-size: 3.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.profile-wrapper .btn-primary {
+    width: auto;
+    padding-left: 1.8rem;
+    padding-right: 1.8rem;
+}
+
+#save-profile-btn {
+    margin-top: 2rem;
+}
+
+.profile-section h3 {
+    color: #d65780;
+}
+
+.profile-heading {
+    font-size: 2.2rem;
+    margin-bottom: 20px;
+    color: var(--highlight);
+    text-align: center;
+}
+

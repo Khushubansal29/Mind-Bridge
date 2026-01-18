@@ -1,11 +1,9 @@
 .dashboard-body {
     background: linear-gradient(135deg, #f6f1ea, #efe6dc);
     min-height: 100vh;
-    font-family: 'Inter', sans-serif;
     position: relative;
 }
 
-/* NAVBAR */
 .navbar {
     position: fixed; 
     top: 0;
@@ -62,8 +60,6 @@
     align-items: center;
 }
 
-/* Dashboard */
-
 .dashboard-layout {
     display: grid;
     grid-template-columns: minmax(220px, 1fr) minmax(600px, 2.6fr) minmax(220px, 1fr);
@@ -97,12 +93,11 @@
     }
 }
 
-/* Main Content */
-
 .dashboard-main {
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 40px;
     max-width: 900px;   
     margin: 0 auto;
     grid-column: 2;
@@ -115,7 +110,6 @@
     text-align: center;
 }
 
-/* SIDE DECOR CONTAINER */
 .side-decor {
     top: 50%;
     transform: translateY(-50%);
@@ -139,7 +133,6 @@
     right: 40px;
 }
 
-/* IMAGE STYLING */
 .side-decor img {
     width: 100%;
     max-width: 220px;
@@ -163,8 +156,6 @@
     animation: floatY 6s ease-in-out infinite;
 }
 
-/* Cards */
-
 .dashboard-grid {
     width: 100%;
     display: grid;
@@ -172,26 +163,41 @@
     gap: 30px;
 }
 
-/* CARD BASE */
 .card {
     background: var(--card-bg);
     padding: 20px;
     border-radius: 22px;
     border: 1px solid var(--accent-tan);
-
     box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 36px rgba(0,0,0,0.08);
 }
 
 .card h2 {
     margin-bottom: 10px;
-    color: var(--text-dark);
+    color: var(--primary-btn);  
+    font-weight: 600;
 }
 
 .card p {
-    color: var(--accent-tan);
-    font-size: 0.95rem;
-    font-weight: 500;
+    margin-top: 8px;
+    margin-bottom: 16px;   
+    line-height: 1.6;
 }
+
+.card ul {
+    margin-top: 10px;
+    padding-left: 20px;
+}
+
+.card li {
+    margin-bottom: 10px;  
+}
+
 
 .muted-text {
     color: var(--accent-tan);
@@ -209,8 +215,6 @@
     font-size: 1rem;
     color: var(--text-dark);
 }
-
-/* Mood Buttons */
 
 .mood-buttons {
     display: flex;
@@ -235,14 +239,11 @@
     color: white;
 }
 
-/* Small Button */
-
 .btn-primary.small {
     padding: 8px 16px;
     font-size: 0.85rem;
 }
 
-/* Journal design */
 
 #journal-input {
     width: 100%;
@@ -286,7 +287,6 @@
     font-size: 0.75rem;
 }
 
-/* Journal Toggle Buttons */
 .journal-toggle {
     display: flex;
     justify-content: center;
@@ -315,7 +315,6 @@
     border-color: transparent;
 }
 
-/* Journal Views */
 .journal-view {
     margin-top: 20px;
 }
@@ -332,15 +331,6 @@
     max-width: 800px;
 }
 
-/* CENTER CONTENT */
-.dashboard-main {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 40px;
-}
-
-/* RESPONSIVE */
 @media (max-width: 992px) {
     .dashboard-layout {
         grid-template-columns: 1fr;
@@ -354,10 +344,130 @@
 .mood-badge {
     margin-top: 8px;
     font-size: 0.9rem;
-    color: #2e7d32;
-    background: #e8f5e9;
+    color: white;
+    background: #4caf50;
     display: inline-block;
     padding: 6px 12px;
     border-radius: 999px;
     font-weight: 600;
+}
+
+#dashboard-journal-input {
+    min-height: 120px;
+    resize: none;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.nav-icon {
+    position: relative;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
+.avatar-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--primary-btn);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    overflow: hidden;
+}
+
+.avatar-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-icon * {
+    pointer-events: none;
+}
+
+.notif-dropdown,
+.profile-dropdown {
+    position: absolute;
+    top: 48px;
+    right: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--accent-tan);
+    border-radius: 14px;
+    padding: 12px;
+    width: 220px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    z-index: 2000;
+}
+
+.profile-dropdown button {
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    border-radius: 8px;
+}
+
+.profile-dropdown button:hover {
+    background: rgba(0,0,0,0.05);
+}
+
+.notif-title {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--highlight);
+}
+
+.hidden {
+    display: none;
+}
+
+.btn-view-all {
+    background: transparent;
+    color: #e15b85;
+    border: 2px solid #f4d8cf;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-view-all span {
+    transition: transform 0.3s ease;
+}
+
+.btn-view-all:hover {
+    background: #f4d8cf;
+    border-color: #e15b85;
+}
+
+.btn-view-all:hover span {
+    transform: translateX(5px); 
+}
+
+.recommended-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+}
+.recommended-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid #f4d8cf;
+}
+.recommended-list li:last-child {
+    border-bottom: none;
 }

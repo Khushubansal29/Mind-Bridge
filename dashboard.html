@@ -29,16 +29,24 @@
         </div>
 
         <ul class="nav-links">
-            <li id="dashboard-section" class="active">Dashboard</li>
+            <li id="nav-dashboard" class="active">Dashboard</li>
             <li id="circles-section" onclick="location.href='circles.html'">Circles</li>
             <li id="journal-section" onclick="location.href='journal.html'">Journal</li>
             <li id="mood-section" onclick="location.href='mood.html'">Mood Tracker</li>
             <li id="profile-section" onclick="location.href='profile.html'">Profile</li>
         </ul>
+    
 
-        <div class="nav-right">
-            <button id="logout-btn" class="btn-primary small">Logout</button>
+    <div class="nav-right" style="display: flex; align-items: center; gap: 12px;">
+    <div class="nav-icon">🔔</div>
+    
+        <div class="nav-icon avatar-icon" id="nav-avatar" style="width: 35px; height: 35px; border-radius: 50%; background: #e15b85; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden;">
         </div>
+
+        <button id="direct-logout-btn" class="nav-logout-btn">Logout</button>
+    </div>
+    </div>
+
     </nav>
     </header>
     
@@ -74,8 +82,20 @@
                     <!-- JOURNAL INPUT -->
                     <section class="card">
                         <h2>Quick Journal</h2>
+                        <input
+                            id="dashboard-journal-title"
+                            placeholder="Journal title"
+                            style="margin-bottom: 10px; width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ddd;"
+                        />
                         <textarea id="dashboard-journal-input" placeholder="Write your heart out 🧡" rows="4"></textarea>
+                         <div class="card-footer">
                         <button id="dashboard-save-journal-btn" class="btn-primary small">Save Entry</button>
+                
+                    
+    <button onclick="window.location.href='journal.html'" class="btn-view-all">
+        View Full Journal <span>→</span>
+    </button>
+</div>
                     </section>
 
                     <!-- INTERESTS -->

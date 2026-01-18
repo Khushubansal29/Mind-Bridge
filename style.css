@@ -1,3 +1,11 @@
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
 :root {
     --bg-main: #ccd7c5;      /* Sage Green */
     --card-bg: #efd2cb;      /* Pale Shell */
@@ -8,11 +16,11 @@
 }
 
 body {
-    background-image: url(startbgfinal.png);
+    background-image: url(formbg.png);
     background-size: cover;
     background-position: center;     
     background-repeat: no-repeat;    
-    background-attachment: fixed;    
+    background-attachment: scroll;    
     min-height: 100vh;
 
     margin: 0;
@@ -32,11 +40,11 @@ body {
 }
 
 .form-card {
-    background: var(--card-bg 0.75);
+    background: transparent;
     padding: 2.5rem;
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    border: 0px solid var(--accent-tan);
+    border: 1px solid var(--accent-tan);
 }
 
 .hidden { 
@@ -51,7 +59,7 @@ h1 {
 
 .subtitle {
     color: var(--accent-tan);
-    margin-bottom: 2rem;
+    margin-bottom: 1.4rem;
     font-size: 0.9rem;
 }
 
@@ -64,10 +72,14 @@ label {
     font-size: 0.9rem;
 }
 
+.interests-section p{
+    color: var(--primary-btn);
+}
+
 input, textarea {
     width: 100%;
     padding: 12px;
-    margin-bottom: 15px;
+    margin-bottom: 18px;
     border: 1px solid rgba(0,0,0,0.1);
     border-radius: 8px;
     background: transparent;
@@ -75,22 +87,19 @@ input, textarea {
 }
 
 textarea { 
-    height: 80px;
+    height: 120px;
     resize: none;
     font-family: 'Inter', sans-serif;
  }
+
+#bio {
+    height: 120px;
+}
 
 .interests-section p {
     font-size: 0.85rem;
     font-weight: 600;
     margin-bottom: 8px;
-}
-
-.tags-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-bottom: 20px;
 }
 
 .btn-primary {
@@ -112,7 +121,7 @@ textarea {
 
 .toggle-text {
     text-align: center;
-    margin-top: 20px;
+    margin-top: 8px;
     font-size: 0.9rem;
 }
 
@@ -157,3 +166,115 @@ textarea {
     background-color: #fcf8f7;
 }
 
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 50px;
+    position: relative;
+}
+
+.form-grid::after {
+    content: "";
+    position: absolute;
+    top: 5%;
+    bottom: 5%;
+    left: 50%;
+    width: 1px;
+    background: linear-gradient(
+        to bottom,
+        transparent,
+        rgba(0,0,0,0.2),
+        transparent
+    );
+}
+
+
+.form-left,
+.form-right {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-right textarea {
+    margin-bottom: 20px;
+}
+
+.toggle-text.small {
+    font-size: 0.8rem;
+    margin-top: 10px;
+    text-align: left;
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-grid::after {
+        display: none;
+    }
+}
+
+.form-left label,
+.form-right label {
+    margin-bottom: 8px;
+}
+
+.form-left input,
+.form-right textarea {
+    margin-bottom: 22px;  
+}
+
+.form-cta {
+    margin-top: 25px;
+    text-align: center;
+}
+
+.form-cta .btn-primary {
+    width: auto;
+    padding: 14px 40px;
+    border-radius: 14px;
+}
+
+.tags-grid {
+    gap: 14px;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 720px;   
+    padding: 20px;
+}
+
+.form-card {
+    padding: 3.5rem;
+}
+
+.form-grid {
+    gap: 60px;
+}
+
+@media (max-width: 768px) {
+    .auth-container {
+        max-width: 95%;
+    }
+}
+
+.nav-logout-btn {
+    background: #f4d8cf; 
+    color: #8d6e63;
+    border: 1px solid #e15b85;
+    padding: 6px 15px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-right: 10px;
+    font-size: 0.85rem;
+}
+
+.nav-logout-btn:hover {
+    background: #e15b85;
+    color: white;
+    box-shadow: 0 4px 10px rgba(225, 91, 133, 0.2);
+}

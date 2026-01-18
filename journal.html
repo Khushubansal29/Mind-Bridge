@@ -36,16 +36,22 @@
             <li onclick="location.href='profile.html'">Profile</li>
         </ul>
 
-        <div class="nav-right">
-            <button id="logout-btn" class="btn-primary small">Logout</button>
+    <div class="nav-right" style="display: flex; align-items: center; gap: 12px;">
+    <div class="nav-icon">🔔</div>
+    
+        <div class="nav-icon avatar-icon" id="nav-avatar" style="width: 35px; height: 35px; border-radius: 50%; background: #e15b85; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden;">
         </div>
+
+        <button id="direct-logout-btn" class="nav-logout-btn">Logout</button>
+    </div>
+    </div>
     </nav>
 
     <main class="dashboard-layout">
-        <div class="dashboard-main">
+        <div class="journal-main">
 
             <h1 class="welcome-heading">Your Journal</h1>
-            <p>Your journal is a place to be introspective ✍️</p>
+            <!-- <p>Your journal is a place to be introspective ✍️</p> -->
 
     <section class="journal-page">
         <!-- BUTTONS -->
@@ -60,6 +66,37 @@
 
     <!-- QUICK JOURNAL -->
         <div id="quick-journal-view">
+        
+            <div class="visibility-section">
+    
+                <div class="visibility-section">
+    <p class="visibility-label">Visibility</p>
+
+    <div class="visibility-pills">
+        <label class="visibility-pill">
+            <input type="radio" name="journal-visibility" value="private" checked>
+            <span>Private</span>
+        </label>
+
+        <label class="visibility-pill">
+            <input type="radio" name="journal-visibility" value="public">
+            <span>Public</span>
+        </label>
+
+    </div>
+</div>
+
+
+    <div id="journal-circle-select" class="hidden">
+        <p>Select circles:</p>
+        <div id="journal-circle-options"></div>
+    </div>
+</div>
+<input
+                id="journal-title"
+                placeholder="Journal title"
+                style="margin-bottom: 12px;"
+            />
             <textarea id="journal-input" placeholder="Write your heart out!" rows="5"></textarea>
             <button id="save-journal-btn" class="btn-primary">Save Entry</button>
         </div>

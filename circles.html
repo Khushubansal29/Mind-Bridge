@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MindBridge | Support Circles</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="dashboard.css" /> <link rel="stylesheet" href="circles.css" />
+</head>
+<body class="dashboard-body">
+
+    <div class="side-decor left-decor"><img src="illustration.png" alt="Decor"></div>
+    <div class="side-decor right-decor"><img src="illustration2.png" alt="Decor"></div>
+
+    <header>
+        <nav class="navbar">
+            <div class="nav-left"><h2 class="logo">MindBridge</h2></div>
+            <ul class="nav-links">
+                <li id="nav-dashboard" onclick="location.href='dashboard.html'">Dashboard</li>
+                <li id="circles-section" class="active" onclick="location.href='circles.html'">Circles</li>
+                <li id="journal-section" onclick="location.href='journal.html'">Journal</li>
+                <li id="mood-section" onclick="location.href='mood.html'">Mood Tracker</li>
+                <li id="profile-section" onclick="location.href='profile.html'">Profile</li>
+            </ul>
+            <div class="nav-right" style="display: flex; align-items: center; gap: 12px;">
+    <div class="nav-icon">🔔</div>
+    
+        <div class="nav-icon avatar-icon" id="nav-avatar" style="width: 35px; height: 35px; border-radius: 50%; background: #e15b85; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden;">
+        </div>
+
+        <button id="direct-logout-btn" class="nav-logout-btn">Logout</button>
+    </div>
+    </div>
+               
+        </nav>
+    </header>
+
+    <main class="dashboard-layout">
+        <div class="dashboard-main">
+            <section id="discovery-view" class="page-section">
+                <h1 class="welcome-heading">Support Circles</h1>
+                
+                <div class="search-bar-container card" style="margin-bottom: 30px; display: flex; gap: 15px; align-items: center;">
+                    <input type="text" id="circle-search" placeholder="Search for a sanctuary..." style="flex: 1; margin: 0;">
+                    <button class="btn-primary" id="open-create-modal" style="width: auto; white-space: nowrap;">+ Create Circle</button>
+                </div>
+
+                <div class="filter-tabs">
+                    <button class="filter-btn active" data-tag="All">All</button>
+                    <button class="filter-btn" data-tag="Healing">Healing</button>
+                    <button class="filter-btn" data-tag="Productivity">Productivity</button>
+                    <button class="filter-btn" data-tag="Mindfulness">Mindfulness</button>
+                </div>
+
+                <div id="circles-grid" class="dashboard-grid">
+                    </div>
+            </section>
+
+            <div id="feed-view" class="hidden">
+    <button id="back-to-discovery" class="btn-text">← Back to Circles</button>
+    
+    <div class="card feed-header-card">
+        <h1 id="active-circle-title" class="feed-title">Healing Space</h1>
+        <p id="active-circle-desc" class="feed-subtitle">A safe circle for emotional healing and support.</p>
+        
+        <div class="post-creation-area">
+            <input type="text" id="post-title-input" placeholder="Post Title" class="feed-input">
+            <textarea id="post-content-input" placeholder="What's on your mind?" class="feed-textarea"></textarea>
+            <button id="post-to-feed-btn" class="btn-primary full-width">Post to Feed</button>
+        </div>
+
+        <div id="feed-posts-list" class="feed-posts-list">
+    </div>
+    </div>
+
+    <div id="posts-container" class="feed-posts-list">
+        </div>
+</div>
+        </div>
+
+    </main>
+
+    <div id="create-modal" class="modal-overlay hidden">
+        <div class="card modal-card">
+            <h2>Create a Sanctuary</h2>
+            <input type="text" id="new-circle-name" placeholder="Circle Title">
+            <textarea id="new-circle-desc" placeholder="What is this space for?"></textarea>
+
+            <span class="modal-label">Select Tags</span>
+<div class="pill-container">
+    <input type="checkbox" id="tag1" class="pill-input">
+    <label for="tag1" class="pill-label">Healing</label>
+    
+    <input type="checkbox" id="tag2" class="pill-input">
+    <label for="tag2" class="pill-label">Mindfulness</label>
+
+    <input type="checkbox" id="tag3" class="pill-input">
+    <label for="tag3" class="pill-label">Productivity</label>
+</div>
+
+            <span class="modal-label">Visibility</span>
+        <div class="pill-container">
+            <input type="radio" id="vis-public" name="visibility" class="pill-input" checked>
+            <label for="vis-public" class="pill-label">🌍 Public</label>
+
+            <input type="radio" id="vis-private" name="visibility" class="pill-input">
+            <label for="vis-private" class="pill-label">🔒 Private</label>
+        </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-primary" id="save-circle-btn">Create</button>
+                <button class="btn-secondary" id="close-create-modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="circles.js"></script>
+</body>
+</html>

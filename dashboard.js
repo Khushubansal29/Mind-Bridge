@@ -1,4 +1,4 @@
-// common functions
+
 function getCurrentUser() {
     const user = localStorage.getItem("currentUser");
     return user ? JSON.parse(user) : null;
@@ -10,261 +10,186 @@ function logoutUser() {
     window.location.href = "index.html";
 }
 
-// mood functions
-
-function todayDate() {
-    return new Date().toISOString().split("T")[0];
+// mood logic
+function todayDate() { 
+    return new Date().toISOString().split("T")[0]; 
 }
 
-function getMoodKey(username) {
-    return `moods_${username}`;
+function getMoodKey(username) { 
+    return `moods_${username}`; 
 }
 
-function getSavedMoods(username) {
-    return JSON.parse(localStorage.getItem(getMoodKey(username))) || [];
+function getSavedMoods(username) { 
+    return JSON.parse(localStorage.getItem(getMoodKey(username))) || []; 
 }
 
-function saveMoods(username, moods) {
-    localStorage.setItem(getMoodKey(username), JSON.stringify(moods));
+function saveMoods(username, moods) { 
+    localStorage.setItem(getMoodKey(username), JSON.stringify(moods)); 
 }
 
-function canSaveMoodToday(username) {
+function saveOrUpdateTodayMood(username, mood, message) {
     const moods = getSavedMoods(username);
     const today = todayDate();
-    return !moods.some(m => m.date === today);
+    const existingMood = moods.find(m => m.date === today);
+
+    if (existingMood) {
+        existingMood.mood = mood;
+        existingMood.message = message;
+    } else {
+        moods.unshift({ date: today, mood, message });
+    }
+    saveMoods(username, moods);
 }
 
-function saveTodayMood(username, mood, message) {
-    if (!canSaveMoodToday(username)) {
-        alert("You have already recorded your mood today 🌱");
-        return false;
+document.addEventListener("DOMContentLoaded", () => {
+    const user = getCurrentUser();
+    if (!user) { 
+        window.location.href = "index.html"; 
+        return; 
     }
 
-    const moods = getSavedMoods(username);
 
-    moods.unshift({
-        date: todayDate(),
-        mood,
-        message
+    const navAvatar = document.getElementById("nav-avatar");
+    if (navAvatar) {
+        const pic = localStorage.getItem(`profilePic_${user.username}`);
+        if (pic) {
+            navAvatar.innerHTML = `<img src="${pic}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+        } else {
+        
+            navAvatar.textContent = (user.displayName || user.username)[0].toUpperCase();
+            navAvatar.style.display = "flex";
+            navAvatar.style.alignItems = "center";
+            navAvatar.style.justifyContent = "center";
+        }
+    }
+
+    // Logout button handler for all possible IDs
+    const logoutBtnIds = ["direct-logout-btn", "logout-btn"];
+    logoutBtnIds.forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) {
+            btn.onclick = (e) => {
+                e.preventDefault();
+                logoutUser();
+            };
+        }
     });
 
-    saveMoods(username, moods);
-    return true;
-}
+    const welcomeText = document.getElementById("welcome-text");
+    if (welcomeText) welcomeText.textContent = `Welcome ${user.displayName || user.username}!`;
 
-
-/* MAIN */
-document.addEventListener("DOMContentLoaded", () => {
-
-    const user = getCurrentUser();
-    if (!user) {
-        window.location.href = "index.html";
-        return;
+    function initializeDefaultCircles() {
+        let allCircles = JSON.parse(localStorage.getItem("circles")) || [];
+        if (allCircles.length === 0) {
+            allCircles = [
+                { id: 101, title: "Healing Space", description: "A safe circle for emotional healing and support.", tags: ["Healing"], members: ["admin"], posts: [] },
+                { id: 102, title: "Productivity Hub", description: "Focus on your goals and stay motivated together.", tags: ["Productivity"], members: ["admin"], posts: [] },
+                { id: 103, title: "Mindfulness Daily", description: "Practicing meditation and staying present.", tags: ["Mindfulness"], members: ["admin"], posts: [] }
+            ];
+            localStorage.setItem("circles", JSON.stringify(allCircles));
+        }
+        return allCircles;
     }
 
-    const sections = {
-    dashboard: document.getElementById("dashboard-section"),
-    journal: document.getElementById("journal-section"),
-    circles: document.getElementById("circles-section"),
-    mood: document.getElementById("mood-section"),
-    profile: document.getElementById("profile-section")
-};
+    const allCircles = initializeDefaultCircles();
 
-function showSection(sectionName) {
-    Object.values(sections).forEach(sec => sec.classList.add("hidden"));
-    sections[sectionName].classList.remove("hidden");
-}
+    const recommendedCard = Array.from(document.querySelectorAll(".card"))
+        .find(card => card.querySelector("h2")?.textContent === "Recommended Circles");
 
-// navbar
-const navDashboard = document.getElementById("nav-dashboard");
-if (navDashboard) {
-    navDashboard.onclick = () => showSection("dashboard");
-}
+    if (recommendedCard) {
+        recommendedCard.innerHTML = `<h2>Recommended Circles</h2><p class="muted-text">Suggested for you:</p>`;
+        const matchedCircles = allCircles.filter(circle => 
+            circle.tags.some(tag => (user.interests || []).includes(tag))
+        );
+        const displayCircles = matchedCircles.length > 0 ? matchedCircles : allCircles.slice(0, 2);
+        
+        const ul = document.createElement("ul");
+        ul.className = "recommended-list";
+        displayCircles.forEach(circle => {
+            const li = document.createElement("li");
+            li.style.padding = "10px 0";
+            li.style.borderBottom = "1px solid #eee";
+            li.innerHTML = `<strong>${circle.title}</strong> <button onclick="location.href='circles.html'" style="float:right; color:#e15b85; background:none; border:none; cursor:pointer; font-weight:bold;">Join →</button>`;
+            ul.appendChild(li);
+        });
+        recommendedCard.appendChild(ul);
+    }
 
-const navJournal = document.getElementById("nav-journal");
-if (navJournal) {
-    navJournal.onclick = () => {
-        showSection("journal");
-        renderJournalEntries();
-    };
-}
-
-const navCircles = document.getElementById("nav-circles");
-if (navCircles) {
-    navCircles.onclick = () => showSection("circles");
-}
-
-const navMood = document.getElementById("nav-mood");
-if (navMood) {
-    navMood.onclick = () => showSection("mood");
-}
-
-const navProfile = document.getElementById("nav-profile");
-if (navProfile) {
-    navProfile.onclick = () => showSection("profile");
-}
-
-    /* ELEMENTS */
-    const welcomeText = document.getElementById("welcome-text");
-    const interestsBox = document.getElementById("interest-tags");
-    const moodStatus = document.getElementById("mood-status");
     const moodButtons = document.querySelectorAll(".mood-btn");
+    const moodStatus = document.getElementById("mood-status");
     const moodBadge = document.getElementById("mood-saved-badge");
 
-    const logoutBtn = document.getElementById("logout-btn");
+    moodButtons.forEach(btn => {
+        btn.onclick = () => {
+            let moodType = "";
+            let msg = "";
 
-    const dashboardSection = document.getElementById("dashboard-section");
-    const journalSection = document.getElementById("journal-section");
+            if (btn.textContent.includes("Good")) {
+                moodType = "Good";
+                msg = "Peace begins with a smile 😊";
+            } else if (btn.textContent.includes("Neutral")) {
+                moodType = "Neutral";
+                msg = "Keep going, you're doing great! 💪🏻";
+            } else {
+                moodType = "Bad";
+                msg = "It's okay to not be okay. Fresh start tomorrow 🌱";
+            }
 
-    const saveJournalBtn = document.getElementById("save-journal-btn");
-    const journalEntriesBox = document.getElementById("journal-entries");
-
-    const btnQuickJournal = document.getElementById("btn-quick-journal");
-    const btnViewJournal = document.getElementById("btn-view-journal");
-
-    const quickJournalView = document.getElementById("quick-journal-view");
-    const savedJournalView = document.getElementById("saved-journal-view");
-
-    const journalInput = document.getElementById("journal-input");
-    const dashboardSaveBtn = document.getElementById("dashboard-save-journal-btn");
-    const input = document.getElementById("dashboard-journal-input");
-
-
-    /* WELCOME */
-    welcomeText.textContent = `Welcome ${user.displayName || user.username}`;
-
-/* INTERESTS */
-interestsBox.innerHTML = "";
-
-if (user.interests && user.interests.length > 0) {
-    user.interests.forEach(i => {
-        const li = document.createElement("li");
-        li.textContent = i;
-        interestsBox.appendChild(li);
+            saveOrUpdateTodayMood(user.username, moodType, msg);
+            if (moodStatus) moodStatus.textContent = msg;
+            if (moodBadge) {
+                moodBadge.textContent = "✔ Today's mood saved";
+                moodBadge.classList.remove("hidden");
+            }
+        };
     });
-} else {
-    interestsBox.innerHTML = "<li>No interests selected yet</li>";
-}
-
-// dashboard final code
-
-const moods = getSavedMoods(user.username);
-const today = todayDate();
-
-// Show today's mood on dashboard load
-const todayMood = moods.find(m => m.date === today);
-if (todayMood && moodStatus) {
-    moodStatus.textContent = todayMood.message;
-} else if (moodStatus) {
-    moodStatus.textContent = "How are you feeling today?";
-}
-if (todayMood && moodBadge) {
-    moodBadge.classList.remove("hidden");
-}
-
-// Allow saving mood from dashboard (once per day)
-moodButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-
-        let mood = "";
-        let message = "";
-
-        if (btn.textContent.includes("Good")) {
-            mood = "Good";
-            message = "Peace begins with a smile 😊";
-        } else if (btn.textContent.includes("Neutral")) {
-            mood = "Neutral";
-            message = "Fall seven times, stand up eight 💪🏻";
-        } else {
-            mood = "Bad";
-            message = "Every moment is a fresh beginning 🌱";
-        }
-
-        const saved = saveTodayMood(user.username, mood, message);
-
-        if (saved && moodStatus) {
-            moodStatus.textContent = message;
-        }
-    });
-});
 
 
-    /* JOURNAL */
-    function getJournals() {
-        return JSON.parse(localStorage.getItem("journals")) || {};
-    }
+    const quickSaveBtn = document.getElementById("dashboard-save-journal-btn");
+    const quickTitleInput = document.getElementById("dashboard-journal-title");
+    const quickContentInput = document.getElementById("dashboard-journal-input");
 
-    function saveJournals(data) {
-        localStorage.setItem("journals", JSON.stringify(data));
-    }
+    if (quickSaveBtn) {
+        quickSaveBtn.onclick = () => {
+            const text = quickContentInput.value.trim();
+            const title = quickTitleInput.value.trim() || "Quick Dashboard Entry";
 
-    function renderJournalEntries() {
-        if(!journalEntriesBox) return;
+            if (!text) {
+                alert("Please write something first! ✍️");
+                return;
+            }
 
-        const journals = getJournals();
-        const entries = journals[user.username] || [];
+            const storageKey = `journals_${user.username}`;
+            const entries = JSON.parse(localStorage.getItem(storageKey)) || [];
 
-        journalEntriesBox.innerHTML = "";
-
-        if (entries.length === 0) {
-            journalEntriesBox.innerHTML = "<p>No journal entries yet.</p>";
-            return;
-        }
-
-        entries.forEach(e => {
-            const div = document.createElement("div");
-            div.className = "journal-entry";
-            div.innerHTML = `<p>${e.text}</p><small>${e.date}</small>`;
-            journalEntriesBox.appendChild(div);
-        });
-    }
-
-    if(saveJournalBtn){
-        saveJournalBtn.onclick = () => {
-            if(!journalInput) return;
-
-            const text = journalInput.value.trim();
-            if (!text) return;
-
-            const journals = JSON.parse(localStorage.getItem("journals")) || {};
-            journals[user.username] = journals[user.username] || [];
-
-            journals[user.username].unshift({
-            text,
-            date: new Date().toLocaleDateString()
-        });
-
-        localStorage.setItem("journals", JSON.stringify(journals));
-        journalInput.value = "";
-
-        renderJournalEntries();
-
-        alert("Journal entry saved ✨");
-    };
-
-    } 
-
-    if (dashboardSaveBtn) {
-        dashboardSaveBtn.onclick = () => {
-            const text = input.value.trim();
-            if (!text) return;
-
-            const journals = JSON.parse(localStorage.getItem("journals")) || {};
-            journals[user.username] = journals[user.username] || [];
-
-            journals[user.username].unshift({
-                text,
-                date: new Date().toLocaleDateString()
+            entries.unshift({
+                id: Date.now(),
+                title: title,
+                text: text,
+                date: new Date().toLocaleDateString(),
+                time: new Date().toLocaleTimeString(),
+                visibility: "private"
             });
 
-            localStorage.setItem("journals", JSON.stringify(journals));
-            input.value = "";
+            localStorage.setItem(storageKey, JSON.stringify(entries));
+            alert("Journal entry saved and synced! 📖✨");
+            
+            quickTitleInput.value = "";
+            quickContentInput.value = "";
+        };
+    }
 
-            renderJournalEntries();
-            alert("Journal entry saved ✨");
-    };
-}
-
-    logoutBtn.onclick = logoutUser;
+    const interestsBox = document.getElementById("interest-tags");
+    if (interestsBox) {
+        interestsBox.innerHTML = "";
+        if (user.interests && user.interests.length > 0) {
+            user.interests.forEach(interest => {
+                const li = document.createElement("li");
+                li.textContent = interest;
+                interestsBox.appendChild(li);
+            });
+        } else {
+            interestsBox.innerHTML = "<li>No interests selected yet</li>";
+        }
+    }
 });
-

@@ -1,5 +1,4 @@
-/* ---------- HELPER FUNCTIONS ---------- */
-
+// helper functions
 function getUsers() {
     return JSON.parse(localStorage.getItem("allUsers")) || [];
 }
@@ -20,7 +19,7 @@ function getCurrentUser() {
     }
 }
 
-/* ---------- DOM READY ---------- */
+// DOM
 
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -36,15 +35,14 @@ document.addEventListener("DOMContentLoaded", function () {
         localStorage.removeItem("showLogin");
     }
 
-    /* ---------- ELEMENT REFERENCES ---------- */
-
     const toLoginLink = document.getElementById("to-login");
     const toSignupLink = document.getElementById("to-signup");
 
     const signupForm = document.getElementById("signup-form");
     const loginForm = document.getElementById("login-form");
 
-    /* ---------- TOGGLE ---------- */
+    // toggle
+
     if (toLoginLink) {
         toLoginLink.addEventListener("click", function (e) {
             e.preventDefault();
@@ -61,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    /* ---------- SIGNUP ---------- */
+    // signup
     if (signupForm) {
         signupForm.addEventListener("submit", function (e) {
             e.preventDefault();
@@ -105,7 +103,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    /* ---------- LOGIN ---------- */
+//    login
     if (loginForm) {
         loginForm.addEventListener("submit", function (e) {
             e.preventDefault();
