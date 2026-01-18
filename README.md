@@ -31,25 +31,5 @@ Scripting: Vanilla JavaScript (ES6+).
 
 Database: Browser localStorage for persistent data management.
 
-📂 Project Structure
-Plaintext
-
-├── index.html          # Authentication/Login Page
-├── dashboard.html      # Main User Hub
-├── circles.html        # Community Discovery & Feed
-├── mood.html           # Mood Tracking Interface
-├── js/
-│   ├── circles.js      # Circle & Feed Logic
-│   └── mood.js         # Mood Stats & UI Logic
-└── css/
-    └── circles.css     # Cleaned styles for Community
-⚙️ Installation & Usage
-Clone the repository:
-
-Bash
-
-git clone https://github.com/yourusername/mindbridge.git
-Open in Browser: Simply open index.html in any modern web browser. No server setup required!
-
 🔒 Privacy Note
 MindBridge values your privacy. Since it uses localStorage, all your journals, moods, and posts stay on your machine and are never sent to a central server.
