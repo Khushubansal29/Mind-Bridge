@@ -33,7 +33,7 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
         const data = await response.json();
 
         if (response.ok) {
-            alert("Account Created! 🎉 Ab login karo.");
+            alert("Account Created! 🎉");
             signupBox.classList.add('hidden');
             loginBox.classList.remove('hidden');
         } else {
