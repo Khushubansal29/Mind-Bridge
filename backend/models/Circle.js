@@ -3,15 +3,13 @@ const mongoose = require('mongoose');
 const CircleSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
-  tags: [String], // Jaise ['anxiety', 'productivity']
-  visibility: { 
-    type: String, 
-    enum: ['Public', 'Private'], 
-    default: 'Public' 
-  },
-  admin: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Circle creator
+  admin: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  pendingRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
-}, { timestamps: true });
+  pendingRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  tags: [String],
+  visibility: { type: String, enum: ['Public', 'Private'], default: 'Public' },
+  posts: { type: Array, default: [] }, 
+  createdAt: { type: Date, default: Date.now }
+});
 
-module.exports = mongoose.model('Circle', CircleSchema);
+module.exports = Circle = mongoose.model('circle', CircleSchema);

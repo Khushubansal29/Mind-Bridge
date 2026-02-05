@@ -63,53 +63,40 @@
                 <div class="dashboard-grid">
 
                     <!-- MOOD -->
-                    <section class="card">
-                        <h2>Today's Mood</h2>
-                        <p>How's your mood today?</p>
-                        <div class="mood-buttons">
-                            <button class="mood-btn">Good 😊</button>
-                            <button class="mood-btn">Neutral 😐</button>
-                            <button class="mood-btn">Bad ☹️</button>
-                        </div>
-                        <p id="mood-status" class="muted-text"></p>
-
-                        <p id="mood-saved-badge" class="mood-badge hidden">
-                            ✔ Today's mood saved
-                        </p>
-
-                    </section>
+                    <div class="card mood-card">
+    <h2>Mood Tracker</h2>
+    <p>Monitor your emotional well-being over time. See patterns and stay mindful of your mental health.</p>
+    <div id="dashboard-current-mood">
+        </div>
+    <button onclick="window.location.href='mood.html'" class="btn-primary">Track Your Mood</button>
+</div>
 
                     <!-- JOURNAL INPUT -->
                     <section class="card">
                         <h2>Quick Journal</h2>
-                        <input
-                            id="dashboard-journal-title"
-                            placeholder="Journal title"
-                            style="margin-bottom: 10px; width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ddd;"
-                        />
-                        <textarea id="dashboard-journal-input" placeholder="Write your heart out 🧡" rows="4"></textarea>
-                         <div class="card-footer">
-                        <button id="dashboard-save-journal-btn" class="btn-primary small">Save Entry</button>
-                
-                    
-    <button onclick="window.location.href='journal.html'" class="btn-view-all">
-        View Full Journal <span>→</span>
-    </button>
-</div>
+                        <p class="feature-desc" style="margin-bottom: 20px; color: #666; font-size: 0.9rem;">
+        Self-reflection is the key to mental clarity. Capture your thoughts and feelings in a safe space.
+    </p>
+                        <div class="card-footer" style="display: flex; flex-direction: column; gap: 10px;">
+        <button onclick="window.location.href='journal.html'" class="btn-primary" style="width: 100%;">
+            Write a Journal
+        </button>
+        <button onclick="location.href='journal.html#history'" class="btn-view-all">
+            View Past Entries <span>→</span>
+        </button>
+    </div>
                     </section>
 
-                    <!-- INTERESTS -->
-                    <section class="card">
-                        <h2>Your Interests</h2>
-                        <ul id="interest-tags" class="interest-list"></ul>
-                    </section>
+                   <section class="card">
+    <h2>Your Interests</h2>
+    <ul id="final-interests-box" class="interest-list" style="list-style: none; padding: 0; display: flex; flex-wrap: wrap;"></ul>
+</section>
 
-                    <!-- CIRCLES -->
-                    <section class="card">
-                        <h2>Recommended Circles</h2>
-                        <p>Based on your intersts, here are the recommended circles:</p>
-                    </section>
-
+<section class="card">
+    <h2>Recommended Circles</h2>
+    <p>Based on your interests:</p>
+    <ul id="final-circles-list" class="interest-list" style="list-style: none; padding: 0;"></ul>
+</section>
                 </div>
             </section>
 

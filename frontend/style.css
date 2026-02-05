@@ -278,3 +278,29 @@ textarea {
     color: white;
     box-shadow: 0 4px 10px rgba(225, 91, 133, 0.2);
 }
+
+.nav-avatar, #nav-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #e15b85;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    overflow: hidden; 
+    cursor: pointer;
+    flex-shrink: 0; 
+}
+
+.nav-avatar img, #nav-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+    display: block;
+}
+
+.card h2, .card h1, .mood-tracker-header {
+    color: #008000 !important; 
+}

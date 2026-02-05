@@ -1,151 +1,161 @@
+console.log("mood.js loaded ✅");
 
-function getCurrentUser() {
-    const user = localStorage.getItem("currentUser");
-    return user ? JSON.parse(user) : null;
-}
+document.addEventListener("DOMContentLoaded", async () => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    window.location.href = "index.html";
+    return;
+  }
 
-function todayDate() {
-    return new Date().toISOString().split("T")[0];
-}
+  const API_BASE = "http://localhost:5000/api/mood";
+  const AUTH_API = "http://localhost:5000/api/auth";
 
-function getMoodKey(username) {
-    return `moods_${username}`;
-}
+  const moodButtons = document.querySelectorAll(".mood-btn");
+  const historyBox = document.getElementById("mood-history");
+  const moodStatus = document.getElementById("mood-status");
 
-function getSavedMoods(username) {
-    return JSON.parse(localStorage.getItem(getMoodKey(username))) || [];
-}
+  /* ================= NAVBAR PROFILE SYNC ================= */
+  async function syncNavbar() {
+    try {
+      const response = await fetch(`${AUTH_API}/profile`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-// main logic
-document.addEventListener("DOMContentLoaded", () => {
-    const user = getCurrentUser();
-    if (!user) {
-        window.location.href = "index.html";
-        return;
-    }
+      const userData = await response.json();
 
-    // nabar, logout
-    const navAvatar = document.getElementById("nav-avatar");
-    if (navAvatar) {
-        const pic = localStorage.getItem(`profilePic_${user.username}`);
-        if (pic) {
-            navAvatar.innerHTML = `<img src="${pic}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+      if (response.ok) {
+        const navAvatar = document.getElementById("nav-avatar");
+        if (!navAvatar) return;
+
+        if (userData.profilePic && userData.profilePic.startsWith("data:image")) {
+          navAvatar.innerHTML = `
+            <img src="${userData.profilePic}"
+                 style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+          `;
+          navAvatar.style.backgroundColor = "transparent";
         } else {
-        
-            navAvatar.textContent = (user.displayName || user.username)[0].toUpperCase();
-            navAvatar.style.display = "flex";
-            navAvatar.style.alignItems = "center";
-            navAvatar.style.justifyContent = "center";
-            navAvatar.style.fontWeight = "bold";
-            navAvatar.style.color = "white";
+          const initial = userData.displayName
+            ? userData.displayName[0].toUpperCase()
+            : "U";
+          navAvatar.innerHTML = "";
+          navAvatar.textContent = initial;
+          navAvatar.style.display = "flex";
+          navAvatar.style.alignItems = "center";
+          navAvatar.style.justifyContent = "center";
+          navAvatar.style.backgroundColor = "#e15b85";
         }
+      }
+    } catch (err) {
+      console.error("Navbar sync error:", err);
     }
+  }
 
-    const logoutBtnIds = ["direct-logout-btn", "logout-btn"];
-    logoutBtnIds.forEach(id => {
-        const btn = document.getElementById(id);
-        if (btn) {
-            btn.onclick = (e) => {
-                e.preventDefault();
-                localStorage.removeItem("currentUser");
-                localStorage.setItem("showLogin", "true");
-                window.location.href = "index.html";
-            };
-        }
+  /* ================= FETCH MOOD HISTORY ================= */
+  async function loadMoodHistory() {
+    try {
+      const res = await fetch(`${API_BASE}/history`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error("History fetch failed");
+
+      refreshUI(data.moodHistory || []);
+    } catch (err) {
+      console.error("Mood history error:", err);
+    }
+  }
+
+  /* ================= SAVE MOOD ================= */
+  moodButtons.forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const mood = btn.innerText.split(" ")[0]; // Good / Neutral / Bad
+      const status = `${mood} Day`;
+
+      try {
+        const res = await fetch(`${API_BASE}/add`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ status })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error("Save failed");
+
+        refreshUI(data.moodHistory);
+      } catch (err) {
+        console.error("Mood save error:", err);
+      }
+    });
+  });
+
+  /* ================= UI UPDATE ================= */
+  function refreshUI(history) {
+    const today = new Date().toDateString();
+
+    moodButtons.forEach(btn => btn.classList.remove("active"));
+
+    const stats = { Good: 0, Neutral: 0, Bad: 0 };
+
+    history.forEach(item => {
+      if (stats[item.mood] !== undefined) stats[item.mood]++;
     });
 
-    const moodButtons = document.querySelectorAll(".mood-btn");
-    const moodStatus = document.getElementById("mood-status");
-    const historyBox = document.getElementById("mood-history");
-    const overviewBox = document.getElementById("mood-overview");
-    const moodBadge = document.getElementById("mood-saved-badge");
+    const todayEntry = history.find(
+      h => new Date(h.date).toDateString() === today
+    );
 
-    refreshUI();
-
-    function refreshUI() {
-        const moods = getSavedMoods(user.username);
-        const today = todayDate();
-        const todayEntry = moods.find(m => m.date === today);
-
-        if (todayEntry) {
-            if (moodStatus) moodStatus.textContent = todayEntry.message;
-            if (moodBadge) moodBadge.classList.remove("hidden");
-        } else {
-            if (moodStatus) moodStatus.textContent = "You haven't tracked your mood yet today.";
-            if (moodBadge) moodBadge.classList.add("hidden");
+    if (todayEntry) {
+      moodButtons.forEach(btn => {
+        if (btn.innerText.includes(todayEntry.mood)) {
+          btn.classList.add("active");
         }
-
-        if (historyBox) renderHistory(moods);
-        if (overviewBox) renderOverview(moods);
+      });
+      moodStatus.textContent = `Today's Mood: ${todayEntry.mood}`;
+    } else {
+      moodStatus.textContent = "You haven't marked today's mood yet";
     }
 
-    moodButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
-            let mood = btn.textContent.trim().split(" ")[1]; 
-            let message = "";
+    renderHistory(history);
+  }
 
-            if (mood === "Good") message = "Peace begins with a smile 😊";
-            else if (mood === "Neutral") message = "Fall seven times, stand up eight 💪🏻";
-            else message = "Every moment is a fresh beginning 🌸";
+  /* ================= HISTORY ================= */
+  function renderHistory(history) {
+    if (!historyBox) return;
 
-            saveMood(user.username, mood, message);
-            refreshUI();
-        });
-    });
-
-    function saveMood(username, mood, message) {
-        let moods = getSavedMoods(username);
-        const today = todayDate();
-        const existingIdx = moods.findIndex(m => m.date === today);
-        const newEntry = { date: today, mood, message };
-
-        if (existingIdx > -1) {
-            moods[existingIdx] = newEntry;
-        } else {
-            moods.unshift(newEntry);
-        }
-        localStorage.setItem(getMoodKey(username), JSON.stringify(moods));
+    if (!history.length) {
+      historyBox.innerHTML = "<p>No history yet</p>";
+      return;
     }
 
-    function renderHistory(moods) {
-        historyBox.innerHTML = "";
-        if (moods.length === 0) {
-            historyBox.innerHTML = "<p class='muted-text'>No mood history yet</p>";
-            return;
-        }
+    historyBox.innerHTML = history
+      .slice()
+      .reverse()
+      .map(
+        h => `
+        <div class="mood-history-item">
+          <span>${new Date(h.date).toLocaleDateString()}</span>
+          <strong>${h.mood}</strong>
+        </div>
+      `
+      )
+      .join("");
+  }
 
-        moods.forEach(m => {
-            const div = document.createElement("div");
-            div.className = "mood-history-item";
-            const emoji = m.mood === "Good" ? "😊" : m.mood === "Neutral" ? "😐" : "☹️";
-            div.innerHTML = `
-                <span class="history-date">${m.date === todayDate() ? "Today" : m.date}</span>
-                <span class="history-mood">${emoji} ${m.mood}</span>
-            `;
-            historyBox.appendChild(div);
-        });
-    }
-
-    function renderOverview(moods) {
-        let stats = { Good: 0, Neutral: 0, Bad: 0 };
-        moods.forEach(m => {
-            if (stats[m.mood] !== undefined) stats[m.mood]++;
-        });
-
-        overviewBox.innerHTML = `
-            <div class="stat-row"><span>😊 Good</span> <strong>${stats.Good}</strong></div>
-            <div class="stat-row"><span>😐 Neutral</span> <strong>${stats.Neutral}</strong></div>
-            <div class="stat-row"><span>☹️ Bad</span> <strong>${stats.Bad}</strong></div>
-        `;
-    }
-
-    const avatarBtn = document.getElementById("avatar-btn");
-    const profileDropdown = document.getElementById("profile-dropdown");
-    if (avatarBtn && profileDropdown) {
-        avatarBtn.onclick = (e) => {
-            e.stopPropagation();
-            profileDropdown.classList.toggle("hidden");
-        };
-        document.addEventListener("click", () => profileDropdown.classList.add("hidden"));
-    }
+  /* ================= INIT ================= */
+  syncNavbar();       // ✅ THIS WAS MISSING
+  loadMoodHistory();  // mood logic
 });
+
+/* ================= LOGOUT ================= */
+const logoutBtn = document.getElementById("direct-logout-btn");
+if (logoutBtn) {
+  logoutBtn.onclick = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.href = "index.html";
+  };
+}

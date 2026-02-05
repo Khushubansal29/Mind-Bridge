@@ -1,238 +1,71 @@
-// // helper functions
-// function getUsers() {
-//     return JSON.parse(localStorage.getItem("allUsers")) || [];
-// }
+const signupBox = document.getElementById('signup-box');
+const loginBox = document.getElementById('login-box');
+const toLogin = document.getElementById('to-login');
+const toSignup = document.getElementById('to-signup');
 
-// function saveUsers(users) {
-//     localStorage.setItem("allUsers", JSON.stringify(users));
-// }
+toLogin.onclick = () => { signupBox.classList.add('hidden'); loginBox.classList.remove('hidden'); };
+toSignup.onclick = () => { loginBox.classList.add('hidden'); signupBox.classList.remove('hidden'); };
 
-// function setCurrentUser(user) {
-//     localStorage.setItem("currentUser", JSON.stringify(user));
-// }
+document.getElementById('signup-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-// function getCurrentUser() {
-//     try {
-//         return JSON.parse(localStorage.getItem("currentUser"));
-//     } catch {
-//         return null;
-//     }
-// }
+    const email = document.getElementById('username').value; 
+    const password = document.getElementById('password').value;
+    const displayName = document.getElementById('display-name').value;
+    const bio = document.getElementById('bio').value;
 
-// // DOM
+    const selectedTags = Array.from(document.querySelectorAll('input[name="tags"]:checked'))
+                              .map(cb => cb.value);
 
-// document.addEventListener("DOMContentLoaded", function () {
-
-//     const signupBox = document.getElementById("signup-box");
-//     const loginBox = document.getElementById("login-box");
-
-//     const showLogin = localStorage.getItem("showLogin");
-
-//     if (showLogin === "true") {
-//         signupBox.classList.add("hidden");
-//         loginBox.classList.remove("hidden");
-
-//         localStorage.removeItem("showLogin");
-//     }
-
-//     const toLoginLink = document.getElementById("to-login");
-//     const toSignupLink = document.getElementById("to-signup");
-
-//     const signupForm = document.getElementById("signup-form");
-//     const loginForm = document.getElementById("login-form");
-
-//     // toggle
-
-//     if (toLoginLink) {
-//         toLoginLink.addEventListener("click", function (e) {
-//             e.preventDefault();
-//             signupBox.classList.add("hidden");
-//             loginBox.classList.remove("hidden");
-//         });
-//     }
-
-//     if (toSignupLink) {
-//         toSignupLink.addEventListener("click", function (e) {
-//             e.preventDefault();
-//             loginBox.classList.add("hidden");
-//             signupBox.classList.remove("hidden");
-//         });
-//     }
-
-//     // signup
-//     if (signupForm) {
-//         signupForm.addEventListener("submit", function (e) {
-//             e.preventDefault();
-
-//             const newUser = {
-//                 username: document.getElementById("username").value.trim(),
-//                 password: document.getElementById("password").value,
-//                 displayName: document.getElementById("display-name").value.trim(),
-//                 bio: document.getElementById("bio").value.trim(),
-//                 interests: Array.from(
-//                     document.querySelectorAll('input[name="tags"]:checked')
-//                 ).map(function (tag) {
-//                     return tag.value;
-//                 })
-//             };
-
-//             if (!newUser.username || !newUser.password || !newUser.displayName) {
-//                 alert("Please fill all required fields.");
-//                 return;
-//             }
-
-//             const users = getUsers();
-
-//             const userExists = users.some(function (user) {
-//                 return user.username === newUser.username;
-//             });
-
-//             if (userExists) {
-//                 alert("Username already exists!");
-//                 return;
-//             }
-
-//             users.push(newUser);
-//             saveUsers(users);
-
-//             alert("Account created! Please log in.");
-
-//             signupForm.reset();
-//             signupBox.classList.add("hidden");
-//             loginBox.classList.remove("hidden");
-//         });
-//     }
-
-// //    login
-//     if (loginForm) {
-//         loginForm.addEventListener("submit", function (e) {
-//             e.preventDefault();
-
-//             const usernameInput =
-//                 document.getElementById("login-username").value.trim();
-//             const passwordInput =
-//                 document.getElementById("login-password").value;
-
-//             const users = getUsers();
-
-//             const foundUser = users.find(function (user) {
-//                 return (
-//                     user.username === usernameInput &&
-//                     user.password === passwordInput
-//                 );
-//             });
-
-//             if (!foundUser) {
-//                 alert("Invalid username or password.");
-//                 return;
-//             }
-
-//             setCurrentUser(foundUser);
-//             window.location.href = "dashboard.html";
-//         });
-//     }
-
-// });
-
-
-
-// backend wala code:
-
-document.addEventListener("DOMContentLoaded", function () {
-    const signupBox = document.getElementById("signup-box");
-    const loginBox = document.getElementById("login-box");
-    const signupForm = document.getElementById("signup-form");
-    const loginForm = document.getElementById("login-form");
-
-    // Base URL for our Backend
-    const API_URL = "http://localhost:5000/api/auth";
-
-    // --- SIGNUP LOGIC ---
-    if (signupForm) {
-        signupForm.addEventListener("submit", async function (e) {
-            e.preventDefault();
-
-            const newUser = {
-                // Humne backend mein 'email' use kiya tha, toh yahan username ko email map karenge
-                email: document.getElementById("username").value.trim(), 
-                password: document.getElementById("password").value,
-                displayName: document.getElementById("display-name").value.trim(),
-                bio: document.getElementById("bio").value.trim(),
-                interests: Array.from(document.querySelectorAll('input[name="tags"]:checked')).map(tag => tag.value)
-            };
-
-            try {
-                const response = await fetch(`${API_URL}/signup`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(newUser)
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    alert("Account created! 🎉 Ab login kijiye.");
-                    signupForm.reset();
-                    signupBox.classList.add("hidden");
-                    loginBox.classList.remove("hidden");
-                } else {
-                    alert(data.msg || "Signup failed! 🧐");
-                }
-            } catch (err) {
-                console.error("Backend offline hai shayad:", err);
-            }
+    try {
+        const response = await fetch('http://localhost:5000/api/auth/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                displayName,
+                email, 
+                password,
+                bio,
+                interests: selectedTags
+            })
         });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert("Account Created! 🎉 Ab login karo.");
+            signupBox.classList.add('hidden');
+            loginBox.classList.remove('hidden');
+        } else {
+            alert(data.msg || "Signup failed!");
+        }
+    } catch (err) {
+        console.error("Signup error:", err);
     }
+});
 
-    // --- LOGIN LOGIC ---
-    if (loginForm) {
-        loginForm.addEventListener("submit", async function (e) {
-            e.preventDefault();
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-            const loginData = {
-                email: document.getElementById("login-username").value.trim(),
-                password: document.getElementById("login-password").value
-            };
+    const email = document.getElementById('login-username').value;
+    const password = document.getElementById('login-password').value;
 
-            try {
-                const response = await fetch(`${API_URL}/login`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(loginData)
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    // Token save karna bohot zaroori hai! 🎫
-                    localStorage.setItem("token", data.token); 
-                    localStorage.setItem("currentUser", JSON.stringify(data.user));
-                    
-                    window.location.href = "dashboard.html";
-                } else {
-                    alert(data.msg || "Invalid credentials! ❌");
-                }
-            } catch (err) {
-                console.error("Login error:", err);
-            }
+    try {
+        const response = await fetch('http://localhost:5000/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
         });
-    }
 
-    // Toggle Logic (Same as before)
-    const toLoginLink = document.getElementById("to-login");
-    const toSignupLink = document.getElementById("to-signup");
-    if (toLoginLink) {
-        toLoginLink.addEventListener("click", (e) => {
-            e.preventDefault();
-            signupBox.classList.add("hidden");
-            loginBox.classList.remove("hidden");
-        });
-    }
-    if (toSignupLink) {
-        toSignupLink.addEventListener("click", (e) => {
-            e.preventDefault();
-            loginBox.classList.add("hidden");
-            signupBox.classList.remove("hidden");
-        });
+        const data = await response.json();
+
+        if (response.ok) {
+            localStorage.setItem('token', data.token);
+            window.location.href = 'dashboard.html'; 
+        } else {
+            alert(data.msg || "Login failed!");
+        }
+    } catch (err) {
+        console.error("Login error:", err);
     }
 });

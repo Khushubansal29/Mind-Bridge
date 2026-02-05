@@ -3,23 +3,40 @@ const router = express.Router();
 const auth = require('../middleware/authMiddleware');
 const Mood = require('../models/Mood');
 
-// MOOD SAVE KARNE KA ROUTE
 router.post('/add', auth, async (req, res) => {
   try {
     const { status } = req.body;
-    
-    // Check karo aaj ki entry pehle se toh nahi hai? [cite: 85]
-    const today = new Date().setHours(0,0,0,0);
-    const existingMood = await Mood.findOne({ 
-        user: req.user, 
-        date: { $gte: today } 
-    });
+    const today = new Date().setHours(0, 0, 0, 0);
 
-    if (existingMood) return res.status(400).json({ msg: "Aaj ka mood pehle hi set hai! 😊" });
+    await Mood.findOneAndUpdate(
+      { user: req.user.id, date: { $gte: today } },
+      { status },
+      { new: true, upsert: true }
+    );
 
-    const newMood = new Mood({ user: req.user, status });
-    await newMood.save();
-    res.json({ msg: "Mood recorded! 🌈" });
+    const moods = await Mood.find({ user: req.user.id }).sort({ date: 1 });
+
+    const moodHistory = moods.map(m => ({
+      mood: m.status.split(" ")[0], 
+      date: m.date
+    }));
+
+    res.json({ msg: "Mood recorded! 🌈", moodHistory });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/history', auth, async (req, res) => {
+  try {
+    const moods = await Mood.find({ user: req.user.id }).sort({ date: 1 });
+
+    const moodHistory = moods.map(m => ({
+      mood: m.status.split(" ")[0],
+      date: m.date
+    }));
+
+    res.json({ moodHistory });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -627,3 +627,20 @@
     max-width: 500px;
     box-shadow: 0 15px 50px rgba(0,0,0,0.2);
 }
+
+#open-create-modal {
+  position: relative;
+  z-index: 1000;
+  pointer-events: auto;
+}
+
+.search-bar-container {
+  position: relative;
+  z-index: 1000;
+}
+
+.dashboard-layout,
+.dashboard-main,
+.grid-wrapper {
+  pointer-events: auto;
+}

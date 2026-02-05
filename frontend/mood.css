@@ -170,3 +170,12 @@
     margin-bottom: 30px;
     text-align: center;
 }
+
+.mood-btn.active {
+    background-color: #d65780 !important;
+    color: white !important;
+    border: 2px solid #b24567; 
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(214, 87, 128, 0.4);
+    transition: all 0.3s ease;
+}

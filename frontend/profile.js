@@ -1,180 +1,131 @@
-function logoutUser() {
-    localStorage.removeItem("currentUser");
-    localStorage.setItem("showLogin", "true");
-    window.location.href = "index.html";
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    // auth
-    const user = JSON.parse(localStorage.getItem("currentUser"));
-    if (!user) {
+document.addEventListener("DOMContentLoaded", async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
         window.location.href = "index.html";
         return;
     }
 
-    const allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
+    const API_URL = "http://localhost:5000/api/auth";
 
-    const profilePic = document.getElementById("profile-pic");
+    const profilePicContainer = document.getElementById("profile-pic"); 
     const changePicBtn = document.getElementById("change-pic-btn");
     const picInput = document.getElementById("profile-pic-input");
-
     const displayNameInput = document.getElementById("display-name");
     const bioInput = document.getElementById("bio");
-
-    const interestCheckboxes = document.querySelectorAll(
-        'input[name="profile-interests"]'
-    );
-
     const saveProfileBtn = document.getElementById("save-profile-btn");
+    const navAvatar = document.getElementById("nav-avatar");
+    const interestCheckboxes = document.querySelectorAll('input[name="profile-interests"]');
 
-    const PROFILE_PIC_KEY = `profilePic_${user.username}`;
+    function updateAvatarUI(picData, name) {
+        const initial = name ? name[0].toUpperCase() : "U";
+        
+        const applyToElement = (el) => {
+            if (!el) return;
+            el.innerHTML = ""; 
 
-    // profile pic
-    const savedPic = localStorage.getItem(PROFILE_PIC_KEY);
+            if (picData && picData.startsWith("data:image")) {
+                el.innerHTML = `<img src="${picData}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">`;
+                el.style.backgroundColor = "transparent";
+            } else {
 
-    if (savedPic) {
-        profilePic.src = savedPic;
-        profilePic.classList.remove("default-avatar");
-        profilePic.textContent = "";
-    } else {
-        const initial = (user.displayName || user.username)[0].toUpperCase();
-        profilePic.src = "";
-        profilePic.textContent = initial;
-        profilePic.classList.add("default-avatar");
+                el.textContent = initial;
+                el.style.display = "flex";
+                el.style.alignItems = "center";
+                el.style.justifyContent = "center";
+                el.style.fontWeight = "bold";
+                el.style.color = "white";
+                el.style.backgroundColor = "#e15b85";
+                el.style.fontSize = el.id === "profile-pic" ? "60px" : "18px";
+            }
+        };
+
+        applyToElement(profilePicContainer);
+        applyToElement(navAvatar);
     }
 
-    changePicBtn.addEventListener("click", () => {
-        picInput.click();
-    });
+    async function fetchProfile() {
+        try {
+            const response = await fetch(`${API_URL}/profile`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
 
-    picInput.addEventListener("change", () => {
+            if (response.ok) {
+                const user = await response.json();
+                
+                displayNameInput.value = user.displayName || "";
+                bioInput.value = user.bio || "";
+
+                if (user.interests) {
+                    interestCheckboxes.forEach(cb => {
+                        cb.checked = user.interests.includes(cb.value);
+                    });
+                }
+
+                updateAvatarUI(user.profilePic, user.displayName);
+            }
+        } catch (err) {
+            console.error("Profile load error:", err);
+        }
+    }
+
+    changePicBtn?.addEventListener("click", () => picInput.click());
+
+    picInput?.addEventListener("change", () => {
         const file = picInput.files[0];
         if (!file) return;
 
         const reader = new FileReader();
         reader.onload = () => {
-            const imageData = reader.result;
-
-            profilePic.src = imageData;
-            profilePic.textContent = "";
-            profilePic.classList.remove("default-avatar");
-
-            localStorage.setItem(PROFILE_PIC_KEY, imageData);
+            const base64Image = reader.result;
+            updateAvatarUI(base64Image, displayNameInput.value);
         };
-
         reader.readAsDataURL(file);
     });
 
-    // load profile data
-    displayNameInput.value = user.displayName || "";
-    bioInput.value = user.bio || "";
+    saveProfileBtn.addEventListener("click", async () => {
+        const imgTag = profilePicContainer.querySelector('img');
+        const imageData = imgTag ? imgTag.src : "";
 
-    if (user.interests && user.interests.length > 0) {
-        interestCheckboxes.forEach(cb => {
-            cb.checked = user.interests.includes(cb.value);
-        });
-    }
+        const payload = {
+            displayName: displayNameInput.value.trim(),
+            bio: bioInput.value.trim(),
+            interests: Array.from(interestCheckboxes).filter(cb => cb.checked).map(cb => cb.value),
+            profilePic: imageData 
+        };
 
-//    save profile
-    saveProfileBtn.addEventListener("click", () => {
+        if (!payload.displayName) return alert("Name is required!");
 
-        const updatedName = displayNameInput.value.trim();
-        const updatedBio = bioInput.value.trim();
+        try {
+            const response = await fetch(`${API_URL}/update-profile`, {
+                method: 'PUT',
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
 
-        const updatedInterests = Array.from(interestCheckboxes)
-            .filter(cb => cb.checked)
-            .map(cb => cb.value);
+            const data = await response.json();
 
-        if (!updatedName) {
-            alert("Display name cannot be empty");
-            return;
+            if (response.ok) {
+                alert("Profile Updated Successfully! ✨");
+                window.location.reload(); 
+            } else {
+                alert(data.msg || "Update failed! Check server limits.");
+            }
+        } catch (err) {
+            console.error("Save error:", err);
+            alert("Connection error!");
         }
-
-        /* update current user */
-        user.displayName = updatedName;
-        user.bio = updatedBio;
-        user.interests = updatedInterests;
-
-        localStorage.setItem("currentUser", JSON.stringify(user));
-
-        /* update allUsers */
-        const updatedUsers = allUsers.map(u =>
-            u.username === user.username ? user : u
-        );
-
-        localStorage.setItem("allUsers", JSON.stringify(updatedUsers));
-
-        alert("Profile updated successfully ✨");
     });
 
-    const logoutBtn = document.getElementById("logout-btn");
-if (logoutBtn) {
-    logoutBtn.onclick = logoutUser;
-}
-
-});
- 
-// navbar
-
-const user = JSON.parse(localStorage.getItem("currentUser"));
-
-const avatarBtn = document.getElementById("avatar-btn");
-const profileDropdown = document.getElementById("profile-dropdown");
-const notifBtn = document.getElementById("notif-btn");
-const notifDropdown = document.getElementById("notif-dropdown");
-const navAvatar = document.getElementById("nav-avatar");
-
-/* Load avatar */
-(function loadAvatar() {
-    const user = JSON.parse(localStorage.getItem("currentUser"));
-    if (!user || !navAvatar) return;
-
-    const pic = localStorage.getItem(`profilePic_${user.username}`);
-
-    if (pic) {
-        navAvatar.innerHTML = `<img src="${pic}" />`;
-    } else {
-        navAvatar.textContent = (user.displayName || user.username)[0].toUpperCase();
-    }
-})();
-
-/* Toggle profile dropdown */
-avatarBtn?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    profileDropdown.classList.toggle("hidden");
-    notifDropdown?.classList.add("hidden");
-});
-
-/* Toggle notifications */
-notifBtn?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    notifDropdown.classList.toggle("hidden");
-    profileDropdown?.classList.add("hidden");
-});
-
-document.addEventListener("click", (e) => {
-    if (!avatarBtn?.contains(e.target)) {
-        profileDropdown?.classList.add("hidden");
-    }
-
-    if (!notifBtn?.contains(e.target)) {
-        notifDropdown?.classList.add("hidden");
-    }
-});
-
-// Direct Logout Logic
-const directLogoutBtn = document.getElementById("direct-logout-btn");
-
-if (directLogoutBtn) {
-    directLogoutBtn.onclick = () => {
-        // Clear session
-        localStorage.removeItem("currentUser");
-        
-        // Show login form 
-        localStorage.setItem("showLogin", "true");
-        
-        // Redirect to Auth/Index page
+    const logout = () => {
+        localStorage.clear();
         window.location.href = "index.html";
     };
-}
+    document.getElementById("direct-logout-btn")?.addEventListener("click", logout);
+    document.getElementById("logout-btn")?.addEventListener("click", logout);
+
+    fetchProfile();
+});

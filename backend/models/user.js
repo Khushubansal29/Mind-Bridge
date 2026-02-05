@@ -1,37 +1,22 @@
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
-  // Unique Username ya Display Name [cite: 39, 42]
-  displayName: { 
-    type: String, 
-    required: true 
-  },
-  // Login ke liye unique email 
-  email: { 
-    type: String, 
-    required: true, 
-    unique: true 
-  },
-  // Password (jise hum baad mein hash karenge) 
-  password: { 
-    type: String, 
-    required: true 
-  },
-  // User ki choti si description [cite: 43]
-  bio: { 
-    type: String, 
-    default: "" 
-  },
-  // Profile picture ka URL ya default avatar [cite: 40]
-  profilePicture: { 
-    type: String, 
-    default: "default-avatar.png" 
-  },
-  // Interests jaise anxiety, productivity, mindfulness [cite: 45]
-  interests: {
-    type: [String],
-    default: []
-  }
-}, { timestamps: true }); // Isse pata chalega account kab bana
+  displayName: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  bio: { type: String, default: "" },
+  profilePic: { type: String, default: "" }, 
+  interests: { type: [String], default: [] },
+  moodHistory: [{
+    mood: { type: String, required: true },
+    date: { type: Date, default: Date.now }
+  }],
+  journalEntries: [{
+    title: { type: String, required: true },
+    content: { type: String, required: true },
+    visibility: { type: String, enum: ['Private', 'Public'], default: 'Private' },
+    date: { type: Date, default: Date.now }
+  }]
+}, { timestamps: true });
 
 module.exports = mongoose.model('User', UserSchema);

@@ -1,354 +1,274 @@
-
-// function getCircles() {
-//     let data = JSON.parse(localStorage.getItem("circles"));
-//     if (!data || data.length === 0) {
-//         const defaultCircles = [
-//             { id: 101, title: "Healing Space", description: "A safe circle for emotional healing and support.", tags: ["Healing"], members: ["admin"], posts: [] },
-//             { id: 102, title: "Productivity Hub", description: "Focus on your goals and stay motivated together.", tags: ["Productivity"], members: ["admin"], posts: [] },
-//             { id: 103, title: "Mindfulness Daily", description: "Practicing meditation and staying present.", tags: ["Mindfulness"], members: ["admin"], posts: [] }
-//         ];
-//         localStorage.setItem("circles", JSON.stringify(defaultCircles));
-//         return defaultCircles;
-//     }
-//     return data;
-// }
-
-// function saveCircles(data) {
-//     localStorage.setItem("circles", JSON.stringify(data));
-// }
-
-
-// document.addEventListener("DOMContentLoaded", () => {
-//     const user = JSON.parse(localStorage.getItem("currentUser"));
-//     if (!user) { window.location.href = "index.html"; return; }
-
-    
-//     const navAvatar = document.getElementById("nav-avatar");
-//     if (navAvatar) {
-//         const pic = localStorage.getItem(`profilePic_${user.username}`);
-//         if (pic) {
-//             navAvatar.innerHTML = `<img src="${pic}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
-//         } else {
-//             navAvatar.textContent = (user.displayName || user.username)[0].toUpperCase();
-//         }
-//     }
-
-//     const logoutBtnIds = ["direct-logout-btn", "logout-btn"];
-//     logoutBtnIds.forEach(id => {
-//         const btn = document.getElementById(id);
-//         if (btn) {
-//             btn.onclick = (e) => {
-//                 e.preventDefault();
-//                 localStorage.removeItem("currentUser");
-//                 localStorage.setItem("showLogin", "true");
-//                 window.location.href = "index.html";
-//             };
-//         }
-//     });
-
-//     let currentFilter = "All"; 
-//     const grid = document.getElementById("circles-grid");
-//     const searchInput = document.getElementById("circle-search");
-//     const filterButtons = document.querySelectorAll(".filter-btn");
-
-    
-//     function renderDiscovery() {
-//         const circles = getCircles();
-//         const term = searchInput ? searchInput.value.toLowerCase() : "";
-//         if(!grid) return;
-//         grid.innerHTML = "";
-
-//         const filtered = circles.filter(c => {
-//             const matchesSearch = c.title.toLowerCase().includes(term);
-//             const matchesTag = (currentFilter === "All") || 
-//                                c.tags.some(t => t.toLowerCase() === currentFilter.toLowerCase());
-//             return matchesSearch && matchesTag;
-//         });
-
-//         filtered.forEach(circle => {
-//             const isMember = circle.members.includes(user.username);
-//             const card = document.createElement("div");
-//             card.className = "card circle-item";
-//             card.innerHTML = `
-//                 <span class="tag-badge">${circle.tags[0]}</span>
-//                 <h3 style="margin-top:10px; text-transform: capitalize;">${circle.title}</h3>
-//                 <p class="muted-text">${circle.description}</p>
-//                 <div class="circle-card-footer">
-//                     <small>${circle.members.length} members</small>
-//                     <button class="${isMember ? 'btn-primary' : 'btn-secondary'} small ${isMember ? 'open-feed' : 'join-btn'}" data-id="${circle.id}">
-//                         ${isMember ? 'Enter' : 'Join'}
-//                     </button>
-//                 </div>
-//             `;
-//             grid.appendChild(card);
-//         });
-//     }
-
-    
-//     const postBtn = document.getElementById("post-to-feed-btn");
-//     const postTitleInput = document.getElementById("post-title-input");
-//     const postContentInput = document.getElementById("post-content-input");
-
-//     if (postBtn) {
-//         postBtn.onclick = () => {
-//             const title = postTitleInput.value.trim();
-//             const content = postContentInput.value.trim();
-
-//             if (!title || !content) {
-//                 alert("Please write something before posting!");
-//                 return;
-//             }
-
-//             if (window.activeCircle) {
-//                 let circles = getCircles();
-//                 const circleIdx = circles.findIndex(c => c.id == window.activeCircle.id);
-                
-//                 const newPost = {
-//                     id: Date.now(),
-//                     username: user.username,
-//                     displayName: user.displayName || user.username,
-//                     title: title,
-//                     content: content,
-//                     timestamp: new Date().toLocaleString()
-//                 };
-
-//                 circles[circleIdx].posts.unshift(newPost);
-//                 saveCircles(circles);
-//                 window.activeCircle = circles[circleIdx]; // Sync active circle
-
-//                 // Clear inputs
-//                 postTitleInput.value = "";
-//                 postContentInput.value = "";
-
-//                 // Refresh the feed display
-//                 renderFeedPosts(window.activeCircle.posts);
-//             }
-//         };
-//     }
-
-//     function renderFeedPosts(posts) {
-//         const feedContainer = document.getElementById("feed-posts-list");
-//         if (!feedContainer) return;
-        
-//         feedContainer.innerHTML = "";
-//         if (posts.length === 0) {
-//             feedContainer.innerHTML = "<p class='muted-text'>No posts yet. Be the first to share!</p>";
-//             return;
-//         }
-
-//         posts.forEach(post => {
-//             const postDiv = document.createElement("div");
-//             postDiv.className = "post-item";
-//             postDiv.innerHTML = `
-//                 <div class="post-header">
-//                     <div class="post-user-info">
-//                         <strong>${post.displayName}</strong>
-//                         <span class="post-timestamp">${post.timestamp}</span>
-//                     </div>
-//                 </div>
-//                 <div class="post-content">
-//                     <h4 style="color: var(--highlight); margin-bottom: 5px;">${post.title}</h4>
-//                     <p>${post.content}</p>
-//                 </div>
-//             `;
-//             feedContainer.appendChild(postDiv);
-//         });
-//     }
-
-//     function openCircleFeed(id) {
-//         const circles = getCircles();
-//         window.activeCircle = circles.find(c => c.id == id);
-//         document.getElementById("discovery-view").classList.add("hidden");
-//         document.getElementById("feed-view").classList.remove("hidden");
-//         document.getElementById("active-circle-title").textContent = window.activeCircle.title;
-//         renderFeedPosts(window.activeCircle.posts);
-//     }
-
-
-//     grid.addEventListener("click", (e) => {
-//         const id = e.target.getAttribute("data-id");
-//         if (!id) return;
-//         if (e.target.classList.contains("join-btn")) {
-//             let circles = getCircles();
-//             const idx = circles.findIndex(c => c.id == id);
-//             circles[idx].members.push(user.username);
-//             saveCircles(circles);
-//             renderDiscovery();
-//         } else if (e.target.classList.contains("open-feed")) {
-//             openCircleFeed(id);
-//         }
-//     });
-
-//     filterButtons.forEach(btn => {
-//         btn.onclick = () => {
-//             filterButtons.forEach(b => b.classList.remove("active"));
-//             btn.classList.add("active");
-//             currentFilter = btn.getAttribute("data-tag");
-//             renderDiscovery();
-//         };
-//     });
-
-//     if (searchInput) searchInput.oninput = renderDiscovery;
-
-//     const backBtn = document.getElementById("back-to-discovery");
-//     if (backBtn) {
-//         backBtn.onclick = () => {
-//             document.getElementById("discovery-view").classList.remove("hidden");
-//             document.getElementById("feed-view").classList.add("hidden");
-//         };
-//     }
-
-//     // Create Modal Logic
-//     const modal = document.getElementById("create-modal");
-//     const openModalBtn = document.getElementById("open-create-modal");
-//     const closeModalBtn = document.getElementById("close-create-modal");
-//     const saveCircleBtn = document.getElementById("save-circle-btn");
-
-//     if (openModalBtn) openModalBtn.onclick = () => modal.classList.remove("hidden");
-//     if (closeModalBtn) closeModalBtn.onclick = () => modal.classList.add("hidden");
-
-//     if (saveCircleBtn) {
-//         saveCircleBtn.onclick = () => {
-//             const name = document.getElementById("new-circle-name").value.trim();
-//             const desc = document.getElementById("new-circle-desc").value.trim();
-//             if (!name || !desc) return;
-//             const circles = getCircles();
-//             circles.push({
-//                 id: Date.now(), title: name, description: desc,
-//                 tags: [currentFilter === "All" ? "Healing" : currentFilter],
-//                 members: [user.username], posts: []
-//             });
-//             saveCircles(circles);
-//             modal.classList.add("hidden");
-//             renderDiscovery();
-//         };
-//     }
-
-//     renderDiscovery();
-// });
-
-// backend wala code
+console.log("circles.js loaded ✅");
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const user = JSON.parse(localStorage.getItem("currentUser"));
-    const token = localStorage.getItem("token"); // 🎫 Security Guard ke liye token
-    if (!user || !token) { window.location.href = "index.html"; return; }
+  const token = localStorage.getItem("token");
+  const API_BASE = "http://localhost:5000/api/circle";
 
-    const API_BASE = "http://localhost:5000/api/circle";
-    let currentFilter = "All";
-    const grid = document.getElementById("circles-grid");
-    const searchInput = document.getElementById("circle-search");
+  if (!token) {
+    window.location.href = "index.html";
+    return;
+  }
 
-    // --- 1. GET ALL CIRCLES (Discovery) ---
-    async function fetchAndRenderCircles() {
-        try {
-            // Humne backend mein 'search' route banaya tha
-            let url = `${API_BASE}/search`;
-            if (currentFilter !== "All") url += `?tag=${currentFilter}`;
+  // ================== ELEMENTS ==================
+  const grid = document.getElementById("circles-grid");
+  const discoveryView = document.getElementById("discovery-view");
+  const feedView = document.getElementById("feed-view");
 
-            const response = await fetch(url, {
-                headers: { "x-auth-token": token }
-            });
-            const circles = await response.json();
+  const searchInput = document.getElementById("circle-search");
+  const filterBtns = document.querySelectorAll(".filter-btn");
 
-            if (!grid) return;
-            grid.innerHTML = "";
+  const openCreateBtn = document.getElementById("open-create-modal");
+  const createModal = document.getElementById("create-modal");
+  const closeModalBtn = document.getElementById("close-create-modal");
+  const saveCircleBtn = document.getElementById("save-circle-btn");
 
-            circles.forEach(circle => {
-                // Backend mein members array mein IDs hoti hain
-                const isMember = circle.members.includes(user.id); 
-                const card = document.createElement("div");
-                card.className = "card circle-item";
-                card.innerHTML = `
-                    <span class="tag-badge">${circle.tags[0] || 'General'}</span>
-                    <h3 style="margin-top:10px; text-transform: capitalize;">${circle.title}</h3>
-                    <p class="muted-text">${circle.description}</p>
-                    <div class="circle-card-footer">
-                        <small>${circle.members.length} members</small>
-                        <button class="${isMember ? 'btn-primary' : 'btn-secondary'} small ${isMember ? 'open-feed' : 'join-btn'}" data-id="${circle._id}">
-                            ${isMember ? 'Enter' : 'Join'}
-                        </button>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        } catch (err) {
-            console.error("Circles fetch error:", err);
+  const postBtn = document.getElementById("post-to-feed-btn");
+  const backBtn = document.getElementById("back-to-discovery");
+  const feedList = document.getElementById("feed-posts-list");
+
+  let currentUser = null;
+  let currentTag = "All";
+  let activeCircleId = null;
+
+  // ================== PROFILE INIT ==================
+  async function init() {
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/profile", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error("Auth failed");
+
+      currentUser = data;
+
+      // 🔥 AVATAR SYNC (same as dashboard)
+      const avatar = document.getElementById("nav-avatar");
+      if (avatar) {
+        if (
+          currentUser.profilePic &&
+          currentUser.profilePic.startsWith("data:image")
+        ) {
+          avatar.innerHTML = `
+            <img src="${currentUser.profilePic}"
+                 style="width:100%;height:100%;
+                        border-radius:50%;object-fit:cover;">
+          `;
+          avatar.style.backgroundColor = "transparent";
+        } else {
+          const initial = currentUser.displayName
+            ? currentUser.displayName[0].toUpperCase()
+            : "U";
+          avatar.innerHTML = "";
+          avatar.textContent = initial;
         }
+      }
+
+      fetchCircles();
+    } catch (err) {
+      console.error("Profile error:", err);
+      localStorage.removeItem("token");
+      window.location.href = "index.html";
     }
+  }
 
-    // --- 2. JOIN CIRCLE ---
-    grid.addEventListener("click", async (e) => {
-        const circleId = e.target.getAttribute("data-id");
-        if (!circleId) return;
+  // ================== FETCH CIRCLES ==================
+  async function fetchCircles(query = "") {
+    try {
+      const res = await fetch(
+        `${API_BASE}/search?query=${query}&tag=${currentTag}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const circles = await res.json();
+      renderCircles(circles);
+    } catch (err) {
+      console.error("Fetch circles error:", err);
+    }
+  }
 
-        if (e.target.classList.contains("join-btn")) {
-            try {
-                const response = await fetch(`${API_BASE}/join/${circleId}`, {
-                    method: "POST",
-                    headers: { "x-auth-token": token }
-                });
-                if (response.ok) {
-                    alert("Joined successfully! ✅");
-                    fetchAndRenderCircles();
-                }
-            } catch (err) {
-                console.error("Join error:", err);
-            }
-        } else if (e.target.classList.contains("open-feed")) {
-            openCircleFeed(circleId);
-        }
+  // ================== SEARCH ==================
+  searchInput?.addEventListener("input", e => {
+    fetchCircles(e.target.value.trim());
+  });
+
+  // ================== FILTER ==================
+  filterBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      filterBtns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentTag = btn.dataset.tag;
+      fetchCircles(searchInput.value || "");
     });
+  });
 
-    // --- 3. CREATE CIRCLE ---
-    const saveCircleBtn = document.getElementById("save-circle-btn");
-    if (saveCircleBtn) {
-        saveCircleBtn.onclick = async () => {
-            const name = document.getElementById("new-circle-name").value.trim();
-            const desc = document.getElementById("new-circle-desc").value.trim();
-            if (!name || !desc) return;
+  // ================== MODAL OPEN / CLOSE ==================
+  openCreateBtn?.addEventListener("click", () => {
+    createModal.classList.remove("hidden");
+  });
 
-            try {
-                const response = await fetch(`${API_BASE}/create`, {
-                    method: "POST",
-                    headers: { 
-                        "Content-Type": "application/json",
-                        "x-auth-token": token 
-                    },
-                    body: JSON.stringify({
-                        title: name,
-                        description: desc,
-                        tags: [currentFilter === "All" ? "Healing" : currentFilter]
-                    })
-                });
+  closeModalBtn?.addEventListener("click", () => {
+    createModal.classList.add("hidden");
+  });
 
-                if (response.ok) {
-                    document.getElementById("create-modal").classList.add("hidden");
-                    fetchAndRenderCircles();
-                }
-            } catch (err) {
-                console.error("Create Circle Error:", err);
-            }
-        };
+  // ================== CREATE CIRCLE (FIXED) ==================
+  saveCircleBtn?.addEventListener("click", async e => {
+    e.preventDefault();
+    console.log("SAVE CIRCLE CLICKED ✅");
+
+    const titleEl = document.getElementById("new-circle-name");
+    const descEl = document.getElementById("new-circle-desc");
+
+    const title = titleEl.value.trim();
+    const description = descEl.value.trim();
+    const visibility = document.getElementById("vis-public").checked
+      ? "Public"
+      : "Private";
+
+    const tag =
+      document.querySelector('input[name="circle-tag"]:checked + label')
+        ?.innerText || "General";
+
+    if (!title || !description) {
+      alert("Please fill all fields");
+      return;
     }
 
-    // --- 4. FEED LOGIC (Posts) ---
-    async function openCircleFeed(id) {
-        try {
-            const response = await fetch(`${API_BASE}/${id}/posts`, {
-                headers: { "x-auth-token": token }
-            });
-            const posts = await response.json();
-            
-            window.activeCircleId = id; // Store current circle ID
-            document.getElementById("discovery-view").classList.add("hidden");
-            document.getElementById("feed-view").classList.remove("hidden");
-            renderFeedPosts(posts);
-        } catch (err) {
-            console.error("Feed error:", err);
-        }
+    try {
+      const res = await fetch(`${API_BASE}/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          title,
+          description,
+          visibility,
+          tags: [tag]
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.msg || "Failed to create circle");
+        return;
+      }
+
+      // reset + close
+      titleEl.value = "";
+      descEl.value = "";
+      createModal.classList.add("hidden");
+
+      fetchCircles();
+    } catch (err) {
+      console.error("Create error:", err);
+    }
+  });
+
+  // ================== ENTER CIRCLE ==================
+  grid.addEventListener("click", e => {
+    const card = e.target.closest(".circle-card");
+    if (!card) return;
+    openCircle(card.dataset.id);
+  });
+
+  function openCircle(id) {
+    activeCircleId = id;
+    discoveryView.classList.add("hidden");
+    feedView.classList.remove("hidden");
+    loadPosts();
+  }
+
+  // ================== POSTS (PERSISTED) ==================
+  function postKey() {
+    return `posts_${activeCircleId}`;
+  }
+
+  function loadPosts() {
+    feedList.innerHTML = "";
+    const posts = JSON.parse(localStorage.getItem(postKey())) || [];
+    posts.forEach(renderPost);
+  }
+
+  function savePost(post) {
+    const posts = JSON.parse(localStorage.getItem(postKey())) || [];
+    posts.unshift(post);
+    localStorage.setItem(postKey(), JSON.stringify(posts));
+  }
+
+  function renderPost(post) {
+    const el = document.createElement("div");
+    el.className = "card";
+    el.innerHTML = `
+      <h4>${post.title}</h4>
+      <p>${post.content}</p>
+      <small>${post.time}</small>
+    `;
+    feedList.appendChild(el);
+  }
+
+  postBtn?.addEventListener("click", () => {
+    if (!activeCircleId) return;
+
+    const titleEl = document.getElementById("post-title-input");
+    const contentEl = document.getElementById("post-content-input");
+
+    const title = titleEl.value.trim();
+    const content = contentEl.value.trim();
+
+    if (!title || !content) return;
+
+    const post = {
+      title,
+      content,
+      time: new Date().toLocaleString()
+    };
+
+    savePost(post);
+    loadPosts();
+
+    titleEl.value = "";
+    contentEl.value = "";
+  });
+
+  // ================== BACK TO CIRCLES ==================
+  backBtn?.addEventListener("click", () => {
+    activeCircleId = null;
+    feedView.classList.add("hidden");
+    discoveryView.classList.remove("hidden");
+  });
+
+  // ================== RENDER CIRCLES ==================
+  function renderCircles(circles) {
+    grid.innerHTML = "";
+
+    if (!circles.length) {
+      grid.innerHTML = "<p>No circles found.</p>";
+      return;
     }
 
-    // Initial Load
-    fetchAndRenderCircles();
+    circles.forEach(circle => {
+      const card = document.createElement("div");
+      card.className = "card circle-card";
+      card.dataset.id = circle._id;
+
+      card.innerHTML = `
+        <h3>${circle.title}</h3>
+        <p>${circle.description}</p>
+        <button class="btn-primary">Enter Circle</button>
+      `;
+
+      grid.appendChild(card);
+    });
+  }
+
+  // ================== LOGOUT ==================
+  document.getElementById("direct-logout-btn")?.addEventListener("click", () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.href = "index.html";
+  });
+
+  // ================== START ==================
+  init();
 });

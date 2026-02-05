@@ -1,208 +1,163 @@
-
-function getCurrentUser() {
-    const user = localStorage.getItem("currentUser");
-    return user ? JSON.parse(user) : null;
-}
-
-function getJournals() {
-    const user = getCurrentUser();
-    return JSON.parse(localStorage.getItem(`journals_${user.username}`)) || [];
-}
-
-function saveJournals(journals) {
-    const user = getCurrentUser();
-    localStorage.setItem(`journals_${user.username}`, JSON.stringify(journals));
-}
-
-function logoutUser() {
-    localStorage.removeItem("currentUser");
-    localStorage.setItem("showLogin", "true");
-    window.location.href = "index.html";
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-    const user = getCurrentUser();
-    if (!user) {
+document.addEventListener("DOMContentLoaded", async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
         window.location.href = "index.html";
         return;
     }
+
+    const API_URL = "http://localhost:5000/api/auth";
 
     const journalTitleInput = document.getElementById("journal-title");
     const journalInput = document.getElementById("journal-input");
     const saveBtn = document.getElementById("save-journal-btn");
     const journalEntriesBox = document.getElementById("journal-entries");
-    
-    const circleSelectBox = document.getElementById("journal-circle-select");
-    const circleOptionsBox = document.getElementById("journal-circle-options");
+    const communityEntriesBox = document.getElementById("community-entries");
 
-    const btnQuick = document.getElementById("btn-quick-journal");
-    const btnView = document.getElementById("btn-view-journal");
     const quickView = document.getElementById("quick-journal-view");
     const savedView = document.getElementById("saved-journal-view");
+    const communityView = document.getElementById("community-journal-view");
 
-    function renderJournalEntries() {
-        if (!journalEntriesBox) return;
+    const btnQuick = document.getElementById("btn-quick-journal");
+    const btnSaved = document.getElementById("btn-view-journal");
+    const btnCommunity = document.getElementById("btn-community-journal");
 
-        const entries = getJournals();
-        journalEntriesBox.innerHTML = "";
+    async function syncNavbar() {
+        try {
+            const response = await fetch(`${API_URL}/profile`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            const userData = await response.json();
 
-        if (entries.length === 0) {
-            journalEntriesBox.innerHTML = `
-                <div class="card center muted-text" style="padding: 20px;">
-                    No journal entries yet. Start writing your thoughts! ✨
-                </div>`;
-            return;
-        }
-
-        entries.forEach(entry => {
-            const div = document.createElement("div");
-            div.className = "card journal-card animate-in";
-            div.style.marginBottom = "15px";
-            div.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                    <h3 style="color: var(--primary-btn); margin-bottom: 5px;">${entry.title}</h3>
-                    <small class="muted-text">${entry.date}</small>
-                </div>
-                <p style="color: #555; line-height: 1.5;">${entry.text}</p>
-                ${entry.visibility === 'circle' ? `<div class="tag-badge small">Shared with Circles</div>` : ''}
-            `;
-            journalEntriesBox.appendChild(div);
-        });
+            if (response.ok) {
+                const navAvatar = document.getElementById('nav-avatar');
+                if (navAvatar && userData.profilePic) {
+                    if (userData.profilePic && userData.profilePic.startsWith("data:image")) {
+                        navAvatar.innerHTML = `<img src="${userData.profilePic}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                        navAvatar.style.backgroundColor = "transparent";
+                    } else {
+                        const initial = userData.displayName ? userData.displayName[0].toUpperCase() : "U";
+                        navAvatar.innerHTML = "";
+                        navAvatar.textContent = initial;
+                        navAvatar.style.display = "flex";
+                        navAvatar.style.alignItems = "center";
+                        navAvatar.style.justifyContent = "center";
+                        navAvatar.style.backgroundColor = "#e15b85";
+                    }
+                }
+            }
+        } catch (err) { console.error("Navbar sync error:", err); }
     }
 
-    const allCircles = JSON.parse(localStorage.getItem("circles")) || [];
-    const myCircles = allCircles.filter(c => c.members?.includes(user.username));
+    async function renderMyJournals() {
+        if (!journalEntriesBox) return;
+        try {
+            const response = await fetch(`${API_URL}/profile`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            const userData = await response.json();
+            const entries = userData.journalEntries || [];
 
-    if (circleOptionsBox) {
-        circleOptionsBox.innerHTML = "";
-        myCircles.forEach(circle => {
-            const label = document.createElement("label");
-            label.className = "checkbox-pill"; 
-            label.innerHTML = `
-                <input type="checkbox" value="${circle.id}">
-                <span>${circle.title}</span>
-            `;
-            circleOptionsBox.appendChild(label);
-        });
+            journalEntriesBox.innerHTML = entries.length === 0 
+                ? `<div class="card center muted-text">No entries yet. ✨</div>` 
+                : "";
+
+            [...entries].reverse().forEach(entry => {
+                const div = document.createElement("div");
+                div.className = "card journal-card animate-in";
+                div.innerHTML = `
+                    <div style="display: flex; justify-content: space-between;">
+                        <h3 style="color: #e15b85;">${entry.title}</h3>
+                        <small>${new Date(entry.date).toLocaleDateString()}</small>
+                    </div>
+                    <p style="color: #555; margin-top: 10px;">${entry.content}</p>
+                    <div class="tag-badge small ${entry.visibility === 'Public' ? 'status-public' : 'status-private'}">${entry.visibility}</div>
+                `;
+                journalEntriesBox.appendChild(div);
+            });
+        } catch (err) { console.error("Fetch error:", err); }
+    }
+
+    async function renderCommunityJournals() {
+        if (!communityEntriesBox) return;
+        try {
+            const response = await fetch(`${API_URL}/public-journals`);
+            const publicEntries = await response.json();
+
+            communityEntriesBox.innerHTML = publicEntries.length === 0 
+                ? `<div class="card center muted-text">No community journals yet. 🌍</div>` 
+                : "";
+
+            publicEntries.forEach(entry => {
+                const div = document.createElement("div");
+                div.className = "card journal-card animate-in";
+                div.innerHTML = `
+                    <div style="display: flex; justify-content: space-between;">
+                        <h3 style="color: #e15b85;">${entry.title}</h3>
+                        <small>${new Date(entry.date).toLocaleDateString()}</small>
+                    </div>
+                    <p style="color: #555; margin-top: 10px;">${entry.content}</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+                        <span class="tag-badge small status-public">Public</span>
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #777;">✍️ By: ${entry.author}</span>
+                    </div>
+                `;
+                communityEntriesBox.appendChild(div);
+            });
+        } catch (err) { console.error("Community fetch error:", err); }
     }
 
     if (saveBtn) {
-        saveBtn.onclick = () => {
-            const title = journalTitleInput.value.trim() || "Untitled Entry";
-            const text = journalInput.value.trim();
-
-            if (!text) {
-                alert("Please write something in your journal first! ✍️");
-                return;
-            }
+        saveBtn.onclick = async () => {
+            const title = journalTitleInput.value.trim() || "Untitled";
+            const content = journalInput.value.trim();
+            
+            if (!content) { alert("Please write something first!"); return; }
 
             const visibilityRadios = document.querySelectorAll('input[name="journal-visibility"]');
-            const visibility = Array.from(visibilityRadios).find(r => r.checked)?.value || "private";
+            let visibility = "Private";
+            visibilityRadios.forEach(r => { if (r.checked) visibility = r.value.charAt(0).toUpperCase() + r.value.slice(1); });
 
-            const selectedCircles = visibility === "circle" 
-                ? Array.from(circleOptionsBox.querySelectorAll("input:checked")).map(cb => cb.value)
-                : [];
+            try {
+                const response = await fetch(`${API_URL}/save-journal`, {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}` 
+                    },
+                    body: JSON.stringify({ title, content, visibility })
+                });
 
-            if (visibility === "circle" && selectedCircles.length === 0) {
-                alert("Please select at least one circle to share with.");
-                return;
-            }
-
-            // Save Entry
-            const entries = getJournals();
-            entries.unshift({
-                id: Date.now(),
-                title: title,
-                text: text,
-                date: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString(),
-                visibility: visibility,
-                circles: selectedCircles
-            });
-
-            saveJournals(entries);
-
-            // Success & Reset
-            alert("Journal saved successfully! 📖✨");
-            
-            // Clear inputs
-            journalTitleInput.value = "";
-            journalInput.value = "";
-            if (circleSelectBox) circleSelectBox.classList.add("hidden");
-            document.querySelectorAll('input[name="journal-visibility"]').forEach(r => r.checked = r.value === 'private');
-            
-            // Switch to view
-            btnView.click();
+                if (response.ok) {
+                    alert("Journal saved! 📖✨");
+                    journalTitleInput.value = "";
+                    journalInput.value = "";
+                    btnSaved.click(); 
+                } else { alert("Save failed!"); }
+            } catch (err) { console.error("Save error:", err); }
         };
     }
 
-    if (btnQuick) {
-        btnQuick.onclick = () => {
-            quickView.classList.remove("hidden");
-            savedView.classList.add("hidden");
-            btnQuick.classList.add("active");
-            btnView.classList.remove("active");
-        };
+    function resetTabs() {
+        [quickView, savedView, communityView].forEach(v => v?.classList.add("hidden"));
+        [btnQuick, btnSaved, btnCommunity].forEach(b => b?.classList.remove("active"));
     }
 
-    if (btnView) {
-        btnView.onclick = () => {
-            savedView.classList.remove("hidden");
-            quickView.classList.add("hidden");
-            btnView.classList.add("active");
-            btnQuick.classList.remove("active");
-            renderJournalEntries();
-        };
-    }
+    btnQuick.onclick = () => { resetTabs(); quickView.classList.remove("hidden"); btnQuick.classList.add("active"); };
+    btnSaved.onclick = () => { resetTabs(); savedView.classList.remove("hidden"); btnSaved.classList.add("active"); renderMyJournals(); };
+    btnCommunity.onclick = () => { resetTabs(); communityView.classList.remove("hidden"); btnCommunity.classList.add("active"); renderCommunityJournals(); };
 
-    document.querySelectorAll('input[name="journal-visibility"]').forEach(radio => {
-        radio.addEventListener("change", (e) => {
-            if (e.target.value === "circle") {
-                circleSelectBox?.classList.remove("hidden");
-            } else {
-                circleSelectBox?.classList.add("hidden");
-            }
-        });
-    });
-
-    const navAvatar = document.getElementById("nav-avatar");
-    const avatarBtn = document.getElementById("avatar-btn");
-    const profileDropdown = document.getElementById("profile-dropdown");
-    const logoutBtn = document.getElementById("logout-btn");
-
-    if (user && navAvatar) {
-        const pic = localStorage.getItem(`profilePic_${user.username}`);
-        if (pic) {
-            navAvatar.innerHTML = `<img src="${pic}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" />`;
-        } else {
-            navAvatar.textContent = (user.displayName || user.username)[0].toUpperCase();
-        }
-    }
-
-    avatarBtn?.addEventListener("click", (e) => {
-        e.stopPropagation();
-        profileDropdown?.classList.toggle("hidden");
-    });
-
-    document.addEventListener("click", () => profileDropdown?.classList.add("hidden"));
-
-    if (logoutBtn) logoutBtn.onclick = logoutUser;
-
-    // Initial Render
-    renderJournalEntries();
+    if (window.location.hash === '#history') { btnSaved.click(); } else { syncNavbar(); renderMyJournals(); }
 });
 
-// Direct Logout Logic
-const directLogoutBtn = document.getElementById("direct-logout-btn");
+const logoutBtn = document.getElementById("direct-logout-btn");
 
-if (directLogoutBtn) {
-    directLogoutBtn.onclick = () => {
-        // Clear session
-        localStorage.removeItem("currentUser");
-        
-        // Show login form 
-        localStorage.setItem("showLogin", "true");
-        
-        // Redirect to Auth/Index page
+if (logoutBtn) {
+    logoutBtn.onclick = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
         window.location.href = "index.html";
+
+        console.log("Logged out successfully. See you soon at MindBridge! ✨");
     };
 }

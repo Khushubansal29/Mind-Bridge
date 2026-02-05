@@ -3,91 +3,83 @@ const router = express.Router();
 const auth = require('../middleware/authMiddleware');
 const Circle = require('../models/Circle');
 
-// 1. Naya Circle banana (Essential Feature 3a)
 router.post('/create', auth, async (req, res) => {
   try {
-    const { title, description, tags, visibility } = req.body;
+    if (!req.body.title || !req.body.description) {
+        return res.status(400).json({ msg: "Title and description are required" });
+    }
+
+    const creatorId = req.user.id || req.user._id;
+
     const newCircle = new Circle({
-      title,
-      description,
-      tags,
-      visibility,
-      admin: req.user,
-      members: [req.user] // Creator khud member ban jata hai
+      title: req.body.title,
+      description: req.body.description,
+      admin: creatorId,
+      tags: req.body.tags || ["General"],
+      visibility: req.body.visibility || "Public",
+      members: [creatorId], 
+      posts: [] 
     });
-    await newCircle.save();
-    res.json({ msg: "Circle created! 🏛️", circle: newCircle });
+
+    const savedCircle = await newCircle.save();
+    res.status(201).json(savedCircle);
   } catch (err) {
+    console.error("Detailed Backend Error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// 2. Circle Join karna (Essential Feature 3a)
-router.post('/join/:id', auth, async (req, res) => {
+router.get('/search', auth, async (req, res) => {
+    try {
+        const { query, tag } = req.query;
+        let filter = {};
+        if (query && query.trim() !== "") filter.title = { $regex: query, $options: 'i' };
+        if (tag && tag !== 'All') filter.tags = tag;
+
+        const circles = await Circle.find(filter).sort({ createdAt: -1 });
+        res.json(circles); 
+    } catch (err) {
+      console.error("Search Error:", err);
+        res.status(500).json([]); 
+    }
+});
+
+router.post('/:id/post', auth, async (req, res) => {
+    try {
+        const circle = await Circle.findById(req.params.id);
+        if (!circle) return res.status(404).json({ msg: "Not found" });
+
+        if (!circle.posts) circle.posts = []; 
+
+        const isMember = circle.members?.some(m => m.toString() === req.user.id);
+        const isAdmin = circle.admin?.toString() === req.user.id;
+
+        if (!isMember && !isAdmin) {
+            return res.status(403).json({ msg: "Join first to post!" });
+        }
+
+        circle.posts.unshift({
+            title: req.body.title,
+            body: req.body.body,
+            author: req.user.id,
+            createdAt: new Date()
+        });
+
+        await circle.save();
+        res.json(circle.posts);
+    } catch (err) {
+        console.error("Post Error:", err.message);
+        res.status(500).json({ error: "Server Error" });
+    }
+});
+
+router.get('/:id/posts', auth, async (req, res) => {
   try {
     const circle = await Circle.findById(req.params.id);
-    if (!circle) return res.status(404).json({ msg: "Circle nahi mila!" });
-
-    if (circle.visibility === 'Public') {
-      circle.members.push(req.user);
-      await circle.save();
-      res.json({ msg: "Joined successfully! ✅" });
-    } else {
-      circle.pendingRequests.push(req.user);
-      await circle.save();
-      res.json({ msg: "Join request sent to admin! ⏳" });
-    }
+    res.json(circle ? circle.posts : []);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json([]);
   }
 });
 
 module.exports = router;
-
-const Post = require('../models/Post');
-
-// Circle ke andar Post banana
-router.post('/:id/post', auth, async (req, res) => {
-  try {
-    const newPost = new Post({
-      circle: req.params.id,
-      author: req.user,
-      title: req.body.title,
-      body: req.body.body
-    });
-    await newPost.save();
-    res.json({ msg: "Post created in circle! 📝", post: newPost });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Circle ka poora Feed dekhna (All posts)
-router.get('/:id/posts', auth, async (req, res) => {
-  try {
-    const posts = await Post.find({ circle: req.params.id }).populate('author', 'displayName');
-    res.json(posts);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// 3. Search Circles by Tag (Essential Feature 6)
-router.get('/search', async (req, res) => {
-  try {
-    const { tag } = req.query; // URL se tag pakdo
-    let circles;
-    
-    if (tag) {
-      // Agar tag diya hai toh wahi filter karo
-      circles = await Circle.find({ tags: tag });
-    } else {
-      // Nahi toh saare dikha do
-      circles = await Circle.find();
-    }
-    
-    res.json(circles);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
