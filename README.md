@@ -37,7 +37,7 @@ The goal of MindBridge is to create a digital space where individuals can better
 * Customize user experience.
 * Maintain a personalized dashboard.
 
-### 🔐 Authentication System
+### Authentication System
 
 * User registration and login functionality.
 * Secure account management.
